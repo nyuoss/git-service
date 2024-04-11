@@ -2,12 +2,34 @@ package main
 
 import (
 	"fmt"
-	"go-template/pkg/calculator"
+	"log"
+	"net/http"
+
+	git_service "go-template/git_functions"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 func main() {
-	fmt.Println("Hello World")
+	router := mux.NewRouter()
 
-	c := calculator.NewCalculator(5, 5)
-	fmt.Println("5 + 5 = ", c.GetAnswer())
+	// Test GET API endpoint
+	router.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
+		git_service.TestEndpoint(w, r)
+	})
+
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	})
+
+	handler := c.Handler(router)
+
+	port := 8000
+	fmt.Printf("Server is running on :%d...\n", port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), handler))
 }
