@@ -3,7 +3,7 @@ package git_service
 import (
 	"encoding/json"
 	"go-template/model"
-	"io/ioutil"
+	"io"
 	"net/http"
 	urlpkg "net/url"
 	"strconv"
@@ -60,7 +60,7 @@ func GetCommitsByMessage(w http.ResponseWriter, r *http.Request) {
 		}
 		defer res.Body.Close()
 
-		body, err := ioutil.ReadAll(res.Body)
+		body, err := io.ReadAll(res.Body)
 		if err != nil {
 			http.Error(w, "Error reading response: "+err.Error(), http.StatusInternalServerError)
 			return
