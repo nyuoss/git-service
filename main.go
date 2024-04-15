@@ -20,6 +20,11 @@ func main() {
 		git_service.TestEndpoint(w, r)
 	})
 
+	// GET API endpoint to search commit by message
+	router.HandleFunc("/getCommitsByMessage", func(w http.ResponseWriter, r *http.Request) {
+		git_service.GetCommitsByMessage(w, r)
+	})
+
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
