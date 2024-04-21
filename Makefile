@@ -13,3 +13,7 @@ format:
 .PHONY: test
 test:
 	go test -cover ./...
+
+.PHONY: swagger
+swagger:
+	swagger generate spec -o ./pkg/swagger-ui/swagger.json
