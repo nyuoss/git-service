@@ -15,6 +15,10 @@ import (
 func main() {
 	router := mux.NewRouter()
 
+	// serve swagger-ui
+	sh := http.StripPrefix("/swaggerui/", http.FileServer(http.Dir("./pkg/swagger-ui")))
+	router.PathPrefix("/swaggerui/").Handler(sh)
+
 	// Test GET API endpoint
 	router.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
 		gitService.TestEndpoint(w, r)
