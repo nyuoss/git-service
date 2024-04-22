@@ -1,6 +1,7 @@
 .PHONY: tools
 tools:
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.55.2
+	go install github.com/go-swagger/go-swagger/cmd/swagger@v0.30.5
 
 .PHONY: lint
 lint:
@@ -13,3 +14,7 @@ format:
 .PHONY: test
 test:
 	go test -cover ./...
+
+.PHONY: swagger
+swagger:
+	swagger generate spec -o ./pkg/swagger-ui/swagger.json

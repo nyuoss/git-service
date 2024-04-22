@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	git_service "go-template/git_functions"
+	gitService "git-service/git_functions"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -15,10 +15,19 @@ import (
 func main() {
 	router := mux.NewRouter()
 
+	// serve swagger-ui
+	sh := http.StripPrefix("/swaggerui/", http.FileServer(http.Dir("./pkg/swagger-ui")))
+	router.PathPrefix("/swaggerui/").Handler(sh)
+
 	// Test GET API endpoint
 	router.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
-		git_service.TestEndpoint(w, r)
+		gitService.TestEndpoint(w, r)
 	})
+
+	router.HandleFunc(
+		"/v1/{owner}/{repo}/branch/getActiveBranches",
+		gitService.GetActiveBranches).
+		Methods(http.MethodGet)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{},

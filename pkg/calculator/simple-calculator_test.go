@@ -1,7 +1,7 @@
 package calculator
 
 import (
-	"go-template/pkg/operator"
+	"git-service/pkg/operator"
 	"testing"
 )
 

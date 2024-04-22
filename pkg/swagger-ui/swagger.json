@@ -1,0 +1,86 @@
+{
+  "schemes": [
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Documentation of our awesome API.",
+    "title": "GitsService.",
+    "version": "1.0.0"
+  },
+  "host": "localhost:8000",
+  "basePath": "/v1/",
+  "paths": {
+    "/{owner}/{repo}/branch/getActiveBranches": {
+      "get": {
+        "description": "This will return a user based on the ID provided in the path parameter.",
+        "tags": [
+          "branch"
+        ],
+        "summary": "Get active branches in a period of time.",
+        "operationId": "getActiveBranches",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Owner",
+            "description": "Owner of the repository",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Repo",
+            "description": "repository name",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Unit",
+            "description": "time unit",
+            "name": "unit",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Number",
+            "description": "number",
+            "name": "number",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetActiveBranchesResponse"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "GetActiveBranchesResp": {
+      "type": "object",
+      "properties": {
+        "branches": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Branches"
+        }
+      },
+      "x-go-package": "git-service/git_functions"
+    }
+  },
+  "responses": {
+    "GetActiveBranchesResponse": {
+      "description": "",
+      "schema": {
+        "$ref": "#/definitions/GetActiveBranchesResp"
+      }
+    }
+  }
+}

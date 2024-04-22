@@ -1,6 +1,6 @@
 package calculator
 
-import "go-template/pkg/operator"
+import "git-service/pkg/operator"
 
 type Calculator interface {
 	GetAnswer() int
