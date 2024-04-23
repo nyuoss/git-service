@@ -1,4 +1,4 @@
-package git_service
+package handler
 
 // swagger:parameters getActiveBranches
 type RepoInfo struct {
