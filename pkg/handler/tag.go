@@ -15,6 +15,10 @@ func NewTagHandler() TagHandler {
 	return &tagHandler{}
 }
 
-func (h *tagHandler) GetChildTagsByCommit(w http.ResponseWriter, r *http.Request) {}
+func (h *tagHandler) GetChildTagsByCommit(w http.ResponseWriter, r *http.Request) {
+	// TODO
+}
 
-func (h *tagHandler) GetParentTagsByCommit(w http.ResponseWriter, r *http.Request) {}
+func (h *tagHandler) GetParentTagsByCommit(w http.ResponseWriter, r *http.Request) {
+	// TODO
+}

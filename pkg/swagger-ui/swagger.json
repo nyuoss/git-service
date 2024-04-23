@@ -13,12 +13,253 @@
   "paths": {
     "/{owner}/{repo}/branch/getActiveBranches": {
       "get": {
-        "description": "This will return a user based on the ID provided in the path parameter.",
         "tags": [
           "branch"
         ],
-        "summary": "Get active branches in a period of time.",
+        "summary": "Provides a list of branches that have been active in the given time frame.",
         "operationId": "getActiveBranches",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Unit",
+            "description": "time unit",
+            "name": "unit",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Number",
+            "description": "number",
+            "name": "number",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "Owner",
+            "description": "Owner of the repository",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Repo",
+            "description": "repository name",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetActiveBranchesResponse"
+          }
+        }
+      }
+    },
+    "/{owner}/{repo}/branch/getBranchByTag": {
+      "get": {
+        "tags": [
+          "branch"
+        ],
+        "summary": "Provides the name of the branch from which the given tag was built.",
+        "operationId": "getBranchByTag",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Tag",
+            "description": "tag name",
+            "name": "tag",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "Owner",
+            "description": "Owner of the repository",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Repo",
+            "description": "repository name",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetBranchByTagResponse"
+          }
+        }
+      }
+    },
+    "/{owner}/{repo}/commit/getCommitByMessage": {
+      "get": {
+        "tags": [
+          "commit"
+        ],
+        "summary": "Accepts a message about commit . Provides commit id and name.",
+        "operationId": "getCommitByMessage",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Message",
+            "description": "message",
+            "name": "message",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "Owner",
+            "description": "Owner of the repository",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Repo",
+            "description": "repository name",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetCommitByMessageResponse"
+          }
+        }
+      }
+    },
+    "/{owner}/{repo}/commit/getCommitsAfter": {
+      "get": {
+        "tags": [
+          "commit"
+        ],
+        "summary": "Provides the commits after the given commit in the branches it is present in.",
+        "operationId": "getCommitsAfter",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Commit",
+            "description": "commit id",
+            "name": "commit",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "Owner",
+            "description": "Owner of the repository",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Repo",
+            "description": "repository name",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetCommitsAfterResponse"
+          }
+        }
+      }
+    },
+    "/{owner}/{repo}/commit/getCommitsBefore": {
+      "get": {
+        "tags": [
+          "commit"
+        ],
+        "summary": "Provides the commits before the given commit in the branches it is present in.",
+        "operationId": "getCommitsBefore",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Commit",
+            "description": "commit id",
+            "name": "commit",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "Owner",
+            "description": "Owner of the repository",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Repo",
+            "description": "repository name",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetCommitsBeforeResponse"
+          }
+        }
+      }
+    },
+    "/{owner}/{repo}/job/getJobsByCommit": {
+      "get": {
+        "tags": [
+          "job"
+        ],
+        "summary": "Accepts a commit id. Provides the CI/CD jobs associated with the given commit.",
+        "operationId": "getJobsByCommit",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Commit",
+            "description": "commit id",
+            "name": "commit",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "Owner",
+            "description": "Owner of the repository",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Repo",
+            "description": "repository name",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetJobsByCommitResponse"
+          }
+        }
+      }
+    },
+    "/{owner}/{repo}/tag/getChildTagsByCommit": {
+      "get": {
+        "tags": [
+          "tag"
+        ],
+        "summary": "Accepts a commit id as a query parameter. Provides the child tags in each branch.",
+        "operationId": "getChildTagsByCommit",
         "parameters": [
           {
             "type": "string",
@@ -38,23 +279,54 @@
           },
           {
             "type": "string",
-            "x-go-name": "Unit",
-            "description": "time unit",
-            "name": "unit",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "format": "int64",
-            "x-go-name": "Number",
-            "description": "number",
-            "name": "number",
+            "x-go-name": "Commit",
+            "description": "commit id",
+            "name": "commit",
             "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "$ref": "#/responses/GetActiveBranchesResponse"
+            "$ref": "#/responses/GetChildTagsByCommitResponse"
+          }
+        }
+      }
+    },
+    "/{owner}/{repo}/tag/getParentTagsByCommit": {
+      "get": {
+        "tags": [
+          "tag"
+        ],
+        "summary": "Accepts a commit id as a query parameter. Provides the nearest parent tags in each branch.",
+        "operationId": "getParentTagsByCommit",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Owner",
+            "description": "Owner of the repository",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Repo",
+            "description": "repository name",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Commit",
+            "description": "commit id",
+            "name": "commit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetParentTagsByCommitResponse"
           }
         }
       }
@@ -72,7 +344,98 @@
           "x-go-name": "Branches"
         }
       },
-      "x-go-package": "git-service/git_functions"
+      "x-go-package": "git-service/pkg/handler"
+    },
+    "GetBranchByTagResp": {
+      "type": "object",
+      "properties": {
+        "branches": {
+          "type": "string",
+          "x-go-name": "Branches"
+        }
+      },
+      "x-go-package": "git-service/pkg/handler"
+    },
+    "GetChildTagsByCommitResp": {
+      "type": "object",
+      "properties": {
+        "Tags": {
+          "description": "map[branch-name] ---\u003e [tag1, tag2, tag3...]",
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "x-go-package": "git-service/pkg/handler"
+    },
+    "GetCommitByMessageResp": {
+      "type": "object",
+      "x-go-package": "git-service/pkg/handler"
+    },
+    "GetCommitsAfterResp": {
+      "type": "object",
+      "properties": {
+        "commits": {
+          "description": "map[branch-name] ---\u003e [commit1, commit2, commit3...]",
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "x-go-name": "Commits"
+        }
+      },
+      "x-go-package": "git-service/pkg/handler"
+    },
+    "GetCommitsBeforeResp": {
+      "type": "object",
+      "properties": {
+        "commits": {
+          "description": "map[branch-name] ---\u003e [commit1, commit2, commit3...]",
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "x-go-name": "Commits"
+        }
+      },
+      "x-go-package": "git-service/pkg/handler"
+    },
+    "GetJobsByCommitResp": {
+      "type": "object",
+      "properties": {
+        "jobs": {
+          "description": "[jobUrl1, jobUrl2, jobUrl3...]",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Jobs"
+        }
+      },
+      "x-go-package": "git-service/pkg/handler"
+    },
+    "GetParentTagsByCommitResp": {
+      "type": "object",
+      "properties": {
+        "Tags": {
+          "description": "map[branch-name] ---\u003e tag-name",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "x-go-package": "git-service/pkg/handler"
     }
   },
   "responses": {
@@ -80,6 +443,42 @@
       "description": "",
       "schema": {
         "$ref": "#/definitions/GetActiveBranchesResp"
+      }
+    },
+    "GetBranchByTagResponse": {
+      "description": "",
+      "schema": {
+        "$ref": "#/definitions/GetBranchByTagResp"
+      }
+    },
+    "GetChildTagsByCommitResponse": {
+      "description": "",
+      "schema": {
+        "$ref": "#/definitions/GetChildTagsByCommitResp"
+      }
+    },
+    "GetCommitsAfterResponse": {
+      "description": "",
+      "schema": {
+        "$ref": "#/definitions/GetCommitsAfterResp"
+      }
+    },
+    "GetCommitsBeforeResponse": {
+      "description": "",
+      "schema": {
+        "$ref": "#/definitions/GetCommitByMessageResp"
+      }
+    },
+    "GetJobsByCommitResponse": {
+      "description": "",
+      "schema": {
+        "$ref": "#/definitions/GetJobsByCommitResp"
+      }
+    },
+    "GetParentTagsByCommitResponse": {
+      "description": "",
+      "schema": {
+        "$ref": "#/definitions/GetParentTagsByCommitResp"
       }
     }
   }

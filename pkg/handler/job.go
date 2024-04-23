@@ -14,4 +14,6 @@ func NewJobHandler() JobHandler {
 	return &jobHandler{}
 }
 
-func (h *jobHandler) GetJobsByCommit(w http.ResponseWriter, r *http.Request) {}
+func (h *jobHandler) GetJobsByCommit(w http.ResponseWriter, r *http.Request) {
+	// TODO
+}

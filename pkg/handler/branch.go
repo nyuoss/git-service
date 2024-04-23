@@ -20,6 +20,7 @@ func NewBranchHandler() BranchHandler {
 }
 
 func (h *branchHandler) GetActiveBranches(w http.ResponseWriter, r *http.Request) {
+	// TODO
 	vars := mux.Vars(r)
 	owner := vars["owner"]
 	repo := vars["repo"]
@@ -38,4 +39,6 @@ func (h *branchHandler) GetActiveBranches(w http.ResponseWriter, r *http.Request
 	_ = json.NewEncoder(w).Encode(resp)
 }
 
-func (h *branchHandler) GetBranchByTag(w http.ResponseWriter, r *http.Request) {}
+func (h *branchHandler) GetBranchByTag(w http.ResponseWriter, r *http.Request) {
+	// TODO
+}
