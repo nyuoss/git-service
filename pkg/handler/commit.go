@@ -18,8 +18,14 @@ func NewCommitHandler() CommitHandler {
 	return &commitHandler{}
 }
 
-func (h *commitHandler) GetCommitsBefore(w http.ResponseWriter, r *http.Request) {}
+func (h *commitHandler) GetCommitsBefore(w http.ResponseWriter, r *http.Request) {
+	// TODO
+}
 
-func (h *commitHandler) GetCommitsAfter(w http.ResponseWriter, r *http.Request) {}
+func (h *commitHandler) GetCommitsAfter(w http.ResponseWriter, r *http.Request) {
+	// TODO
+}
 
-func (h *commitHandler) GetCommitByMessage(w http.ResponseWriter, r *http.Request) {}
+func (h *commitHandler) GetCommitByMessage(w http.ResponseWriter, r *http.Request) {
+	// TODO
+}
