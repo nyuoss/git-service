@@ -73,15 +73,10 @@ func GetBranchByTag(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := map[string][]string{"branches": branches}
-	jsonResponse, err := json.Marshal(response)
-	if err != nil {
-		http.Error(w, "Failed to marshal JSON response", http.StatusInternalServerError)
-		return
-	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 func getTags(owner, repo string) ([]Tag, error) {
