@@ -1,7 +1,5 @@
 {
-  "schemes": [
-    "http"
-  ],
+  "schemes": ["http"],
   "swagger": "2.0",
   "info": {
     "description": "Documentation of our awesome API.",
@@ -13,10 +11,16 @@
   "paths": {
     "/{owner}/{repo}/branch/getActiveBranches": {
       "get": {
+<<<<<<< HEAD
         "tags": [
           "branch"
         ],
         "summary": "Provides a list of branches that have been active in the given time frame.",
+=======
+        "description": "This will return a user based on the ID provided in the path parameter.",
+        "tags": ["branch"],
+        "summary": "Get active branches in a period of time.",
+>>>>>>> a40a4e1 (get branch by tag API)
         "operationId": "getActiveBranches",
         "parameters": [
           {
@@ -338,6 +342,44 @@
           }
         }
       }
+    },
+    "/{owner}/{repo}/branch/getBranchByTag": {
+      "get": {
+        "description": "This will return the branch from which the tag was created, provided the commit is still the branch's HEAD",
+        "tags": ["branch"],
+        "summary": "Get branches by tag",
+        "operationId": "getBranchByTag",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Owner",
+            "description": "Owner of the repository",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Repo",
+            "description": "repository name",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Tag",
+            "description": "tag",
+            "name": "tag",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetBranchByTagResponse"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -352,12 +394,17 @@
           "x-go-name": "Branches"
         }
       },
+<<<<<<< HEAD
       "x-go-package": "git-service/pkg/handler"
+=======
+      "x-go-package": "git-service/git_functions"
+>>>>>>> a40a4e1 (get branch by tag API)
     },
     "GetBranchByTagResp": {
       "type": "object",
       "properties": {
         "branches": {
+<<<<<<< HEAD
           "type": "string",
           "x-go-name": "Branches"
         }
@@ -444,6 +491,14 @@
         }
       },
       "x-go-package": "git-service/pkg/handler"
+=======
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+>>>>>>> a40a4e1 (get branch by tag API)
     }
   },
   "responses": {
@@ -454,6 +509,7 @@
       }
     },
     "GetBranchByTagResponse": {
+<<<<<<< HEAD
       "description": "",
       "schema": {
         "$ref": "#/definitions/GetBranchByTagResp"
@@ -488,6 +544,11 @@
       "schema": {
         "$ref": "#/definitions/GetParentTagsByCommitResp"
       }
+=======
+      "schema": {
+        "$ref": "#/definitions/GetBranchByTagResp"
+      }
+>>>>>>> a40a4e1 (get branch by tag API)
     }
   }
 }
