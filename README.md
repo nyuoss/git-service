@@ -1,6 +1,6 @@
-# go-template
+# Git-Service
 
-An initial template repository for a Go project
+Git Service: Enhanced Git Navigation Tool
 
 ## Prerequisites
 
@@ -38,20 +38,6 @@ $ tree
 |____.golangci.yml  # golangci-lint Configuration
 ```
 
-### Components Example
-Calculator Component is the Interface exposed to the user. 
-+ It gives the user an encapsulated calculator object which receives operands.
-
-Operator Component is the internal library for the Calculator. 
-+ It gives the calculator some operator objects which implements the real calculations.
-
-Please edit it for your projects.
-
-### CI Steps
-1. Install dependency and tools (golangci-lint)
-2. Run unit tests
-3. Code static analysis and format check
-
 ## Getting Started
 
 You have to prepare tools with make.
@@ -73,8 +59,15 @@ make lint
 make format
 ```
 
-## Start your CI project
-* [CircleCI Quick Start](https://circleci.com/docs/getting-started/)
+### Start your server
+``` shell
+# generate swagger file 
+make swagger
+
+go run main.go
+```
+
+use http://localhost:8000/swaggerui/ in your browse to test your Api.
 
 ## Contributing
 + [pull_request_template.md](./pull_request_template.md)
