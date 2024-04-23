@@ -1,7 +1,5 @@
 {
-  "schemes": [
-    "http"
-  ],
+  "schemes": ["http"],
   "swagger": "2.0",
   "info": {
     "description": "Documentation of our awesome API.",
@@ -14,9 +12,7 @@
     "/{owner}/{repo}/branch/getActiveBranches": {
       "get": {
         "description": "This will return a user based on the ID provided in the path parameter.",
-        "tags": [
-          "branch"
-        ],
+        "tags": ["branch"],
         "summary": "Get active branches in a period of time.",
         "operationId": "getActiveBranches",
         "parameters": [
@@ -58,6 +54,44 @@
           }
         }
       }
+    },
+    "/{owner}/{repo}/branch/getBranchByTag": {
+      "get": {
+        "description": "This will return the branch from which the tag was created, provided the commit is still the branch's HEAD",
+        "tags": ["branch"],
+        "summary": "Get branches by tag",
+        "operationId": "getBranchByTag",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Owner",
+            "description": "Owner of the repository",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Repo",
+            "description": "repository name",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Tag",
+            "description": "tag",
+            "name": "tag",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetBranchByTagResponse"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -73,6 +107,17 @@
         }
       },
       "x-go-package": "git-service/git_functions"
+    },
+    "GetBranchByTagResp": {
+      "type": "object",
+      "properties": {
+        "branches": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
     }
   },
   "responses": {
@@ -80,6 +125,11 @@
       "description": "",
       "schema": {
         "$ref": "#/definitions/GetActiveBranchesResp"
+      }
+    },
+    "GetBranchByTagResponse": {
+      "schema": {
+        "$ref": "#/definitions/GetBranchByTagResp"
       }
     }
   }

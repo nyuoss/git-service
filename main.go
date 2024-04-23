@@ -29,6 +29,11 @@ func main() {
 		gitService.GetActiveBranches).
 		Methods(http.MethodGet)
 
+	router.HandleFunc(
+		"/v1/{owner}/{repo}/branch/getBranchByTag",
+		gitService.GetBranchByTag).
+		Methods(http.MethodGet)
+
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
