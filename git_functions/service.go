@@ -3,36 +3,96 @@ package git_service
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
+
+	"git-service/pkg/handler"
 )
 
-func TestEndpoint(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	resp := "Hello World"
+var _ Server = &gitServer{}
 
-	_ = json.NewEncoder(w).Encode(resp)
+type gitServer struct {
+	r *mux.Router
+
+	bh handler.BranchHandler
+	ch handler.CommitHandler
+	th handler.TagHandler
+	jh handler.JobHandler
 }
 
-func GetActiveBranches(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	owner := vars["owner"]
-	repo := vars["repo"]
-
-	queryParams := r.URL.Query()
-
-	// Get the value of a specific query parameter
-	unit := queryParams.Get("unit")
-	number := queryParams.Get("number")
-
-	branches := []string{owner, repo, unit, number}
-	resp := GetActiveBranchesResp{
-		Branches: branches,
+func NewGitServer(r *mux.Router) Server {
+	return &gitServer{
+		r:  r,
+		bh: handler.NewBranchHandler(),
+		ch: handler.NewCommitHandler(),
+		th: handler.NewTagHandler(),
+		jh: handler.NewJobHandler(),
 	}
+}
 
-	_ = json.NewEncoder(w).Encode(resp)
+func (s *gitServer) Run() {
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	})
+
+	handler := c.Handler(s.r)
+
+	port := 8000
+	fmt.Printf("Server is running on :%d...\n", port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), handler))
+}
+
+func (s *gitServer) HandleSwagger() {
+	sh := http.StripPrefix("/swaggerui/", http.FileServer(http.Dir("./pkg/swagger-ui")))
+	s.r.PathPrefix("/swaggerui/").Handler(sh)
+}
+
+func (s *gitServer) HandleBranches() {
+	s.r.HandleFunc(
+		BranchPrefix+"/getActiveBranches", s.bh.GetActiveBranches).
+		Methods(http.MethodGet)
+
+	s.r.HandleFunc(
+		BranchPrefix+"/getBranchByTag", s.bh.GetBranchByTag).
+		Methods(http.MethodGet)
+}
+
+func (s *gitServer) HandleCommits() {
+	s.r.HandleFunc(
+		CommitPrefix+"/getCommitByMessage", s.ch.GetCommitByMessage).
+		Methods(http.MethodGet)
+
+	s.r.HandleFunc(
+		CommitPrefix+"/getCommitsBefore", s.ch.GetCommitsBefore).
+		Methods(http.MethodGet)
+
+	s.r.HandleFunc(
+		CommitPrefix+"/getCommitsAfter", s.ch.GetCommitsAfter).
+		Methods(http.MethodGet)
+
+}
+
+func (s *gitServer) HandleTags() {
+	s.r.HandleFunc(
+		TagPrefix+"/getChildTagsByCommit", s.th.GetChildTagsByCommit).
+		Methods(http.MethodGet)
+
+	s.r.HandleFunc(
+		TagPrefix+"/getParentTagsByCommit", s.th.GetParentTagsByCommit).
+		Methods(http.MethodGet)
+}
+
+func (s *gitServer) HandleJobs() {
+	s.r.HandleFunc(
+		JobPrefix+"/getJobsByCommit", s.jh.GetJobsByCommit).
+		Methods(http.MethodGet)
 }
 
 func GetBranchByTag(w http.ResponseWriter, r *http.Request) {
