@@ -8,6 +8,8 @@ require (
 	github.com/rs/cors v1.10.1
 )
 
+require golang.org/x/net v0.24.0 // indirect
+
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
@@ -27,6 +29,7 @@ require (
 	github.com/go-openapi/strfmt v0.23.0 // indirect
 	github.com/go-openapi/swag v0.23.0 // indirect
 	github.com/go-openapi/validate v0.24.0 // indirect
+	github.com/go-resty/resty/v2 v2.12.0
 	github.com/go-swagger/go-swagger v0.30.5 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/handlers v1.5.2 // indirect
