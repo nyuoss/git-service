@@ -100,7 +100,7 @@
           {
             "type": "string",
             "x-go-name": "Message",
-            "description": "message",
+            "description": "Message",
             "name": "message",
             "in": "query"
           },
@@ -114,8 +114,16 @@
           },
           {
             "type": "string",
+            "x-go-name": "personal_access_token",
+            "description": "User's personal access token",
+            "name": "personal_access_token",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
             "x-go-name": "Repo",
-            "description": "repository name",
+            "description": "Repository name",
             "name": "repo",
             "in": "path",
             "required": true
