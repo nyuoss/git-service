@@ -60,3 +60,21 @@ type GetBranchByTagRespWrapper struct {
 	// in:body
 	Body GetBranchByTagResp `json:"body"`
 }
+
+type Tag struct {
+	Name   string `json:"name"`
+	Commit struct {
+		SHA string `json:"sha"`
+	} `json:"commit"`
+}
+
+type Branch struct {
+	Name      string `json:"name"`
+	Commit    Commit `json:"commit"`
+	Protected bool   `json:"protected"`
+}
+
+type Commit struct {
+	SHA string `json:"sha"`
+	URL string `json:"url"`
+}

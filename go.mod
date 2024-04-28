@@ -8,4 +8,9 @@ require (
 	github.com/rs/cors v1.10.1
 )
 
-require filippo.io/edwards25519 v1.1.0 // indirect
+require golang.org/x/net v0.24.0 // indirect
+
+require (
+	filippo.io/edwards25519 v1.1.0 // indirect
+	github.com/go-resty/resty/v2 v2.12.0
+)

@@ -1,7 +1,5 @@
 {
-  "schemes": [
-    "http"
-  ],
+  "schemes": ["http"],
   "swagger": "2.0",
   "info": {
     "description": "Documentation of our awesome API.",
@@ -13,9 +11,7 @@
   "paths": {
     "/{owner}/{repo}/branch/getActiveBranches": {
       "get": {
-        "tags": [
-          "branch"
-        ],
+        "tags": ["branch"],
         "summary": "Provides a list of branches that have been active in the given time frame.",
         "operationId": "getActiveBranches",
         "parameters": [
@@ -60,9 +56,7 @@
     },
     "/{owner}/{repo}/branch/getBranchByTag": {
       "get": {
-        "tags": [
-          "branch"
-        ],
+        "tags": ["branch"],
         "summary": "Provides the name of the branch from which the given tag was built.",
         "operationId": "getBranchByTag",
         "parameters": [
@@ -99,9 +93,7 @@
     },
     "/{owner}/{repo}/commit/getCommitByMessage": {
       "get": {
-        "tags": [
-          "commit"
-        ],
+        "tags": ["commit"],
         "summary": "Accepts a message about commit . Provides commit id and name.",
         "operationId": "getCommitByMessage",
         "parameters": [
@@ -146,9 +138,7 @@
     },
     "/{owner}/{repo}/commit/getCommitsAfter": {
       "get": {
-        "tags": [
-          "commit"
-        ],
+        "tags": ["commit"],
         "summary": "Provides the commits after the given commit in the branches it is present in.",
         "operationId": "getCommitsAfter",
         "parameters": [
@@ -185,9 +175,7 @@
     },
     "/{owner}/{repo}/commit/getCommitsBefore": {
       "get": {
-        "tags": [
-          "commit"
-        ],
+        "tags": ["commit"],
         "summary": "Provides the commits before the given commit in the branches it is present in.",
         "operationId": "getCommitsBefore",
         "parameters": [
@@ -224,9 +212,7 @@
     },
     "/{owner}/{repo}/job/getJobsByCommit": {
       "get": {
-        "tags": [
-          "job"
-        ],
+        "tags": ["job"],
         "summary": "Accepts a commit id. Provides the CI/CD jobs associated with the given commit.",
         "operationId": "getJobsByCommit",
         "parameters": [
@@ -263,9 +249,7 @@
     },
     "/{owner}/{repo}/tag/getChildTagsByCommit": {
       "get": {
-        "tags": [
-          "tag"
-        ],
+        "tags": ["tag"],
         "summary": "Accepts a commit id as a query parameter. Provides the child tags in each branch.",
         "operationId": "getChildTagsByCommit",
         "parameters": [
@@ -302,9 +286,7 @@
     },
     "/{owner}/{repo}/tag/getParentTagsByCommit": {
       "get": {
-        "tags": [
-          "tag"
-        ],
+        "tags": ["tag"],
         "summary": "Accepts a commit id as a query parameter. Provides the nearest parent tags in each branch.",
         "operationId": "getParentTagsByCommit",
         "parameters": [
@@ -358,7 +340,10 @@
       "type": "object",
       "properties": {
         "branches": {
-          "type": "string",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
           "x-go-name": "Branches"
         }
       },
