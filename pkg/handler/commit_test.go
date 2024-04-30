@@ -2,11 +2,9 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"git-service/pkg/model"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 
@@ -14,16 +12,10 @@ import (
 )
 
 func Test_commitHandler_GetCommitByMessage(t *testing.T) {
-	// Retrieve GitHub personal access token from environment variable
-	token := os.Getenv("SARTHAK_GITHUB_PERSONAL_ACCESS_TOKEN")
-	if token == "" {
-		t.Fatal("GitHub token not set in environment variables")
-	}
-
 	// Mock request data
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	req = mux.SetURLVars(req, map[string]string{"owner": "gcivil-nyu-org", "repo": "INT2-Monday-Spring2024-Team-1"})
-	req.URL.RawQuery = fmt.Sprintf("personal_access_token=%s&message=update allowed hosts again", token)
+	req.URL.RawQuery = "message=update allowed hosts again"
 
 	// Create a ResponseRecorder to capture the response
 	rr := httptest.NewRecorder()

@@ -52,8 +52,6 @@ func (h *commitHandler) GetCommitByMessage(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	AddRequestHeaders(req, request.PersonalAccessToken)
-
 	resp := []model.CommitData{}
 
 	for page_number := 1; ; page_number++ {
