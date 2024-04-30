@@ -102,7 +102,7 @@ func AddRequestHeaders(req *http.Request, personalAccessToken string) {
 	req.Header.Add("X-GitHub-Api-Version", "2022-11-28")
 }
 
-func GetCommitByMessageRequest(w http.ResponseWriter, r *http.Request) (req model.GetCommitByMessageRequest, errMessage string) {
+func GetCommitByMessageRequest(r *http.Request) (req model.GetCommitByMessageRequest, errMessage string) {
 	vars := mux.Vars(r)
 	queryParams := r.URL.Query()
 

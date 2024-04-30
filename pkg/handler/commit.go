@@ -37,7 +37,7 @@ func (h *commitHandler) GetCommitByMessage(w http.ResponseWriter, r *http.Reques
 	w.Header().Set("Content-Type", "application/json")
 
 	// Get request data from query params
-	request, errMessage := GetCommitByMessageRequest(w, r)
+	request, errMessage := GetCommitByMessageRequest(r)
 	if errMessage != "" {
 		http.Error(w, errMessage, http.StatusBadRequest)
 		return
