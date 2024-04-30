@@ -96,12 +96,6 @@ type GetCommitByMessageRespWrapper struct {
 	Body GetCommitByMessageResp `json:"body"`
 }
 
-func AddRequestHeaders(req *http.Request, personalAccessToken string) {
-	req.Header.Add("Accept", "application/vnd.github+json")
-	req.Header.Add("Authorization", "Bearer "+personalAccessToken)
-	req.Header.Add("X-GitHub-Api-Version", "2022-11-28")
-}
-
 func GetCommitByMessageRequest(r *http.Request) (req model.GetCommitByMessageRequest, errMessage string) {
 	vars := mux.Vars(r)
 	queryParams := r.URL.Query()
@@ -118,12 +112,6 @@ func GetCommitByMessageRequest(r *http.Request) (req model.GetCommitByMessageReq
 		return
 	}
 
-	personal_access_token := queryParams.Get("personal_access_token")
-	if len(personal_access_token) == 0 {
-		errMessage = "Personal Access Token cannot be empty"
-		return
-	}
-
 	message := queryParams.Get("message")
 	if len(message) == 0 {
 		errMessage = "Commit Message cannot be empty"
@@ -131,10 +119,9 @@ func GetCommitByMessageRequest(r *http.Request) (req model.GetCommitByMessageReq
 	}
 
 	req = model.GetCommitByMessageRequest{
-		Owner:               owner,
-		Repository:          repo,
-		PersonalAccessToken: personal_access_token,
-		CommitMessage:       message,
+		Owner:         owner,
+		Repository:    repo,
+		CommitMessage: message,
 	}
 	return
 }

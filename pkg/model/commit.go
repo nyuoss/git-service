@@ -62,8 +62,7 @@ type Author struct {
 }
 
 type GetCommitByMessageRequest struct {
-	Owner               string
-	Repository          string
-	PersonalAccessToken string
-	CommitMessage       string
+	Owner         string
+	Repository    string
+	CommitMessage string
 }
