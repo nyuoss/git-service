@@ -87,14 +87,13 @@ Use http://localhost:8000/swaggerui/ in your browser to test the APIs
 4. Swagger UI should be accessible on this link: http://localhost:8000/swaggerui/
 
 ### Adding New APIs: UI
-If you want to add new endpoints to the repository, please follow -
-1. For the endpoint to be accessible on UI, make changes to `swagger.json` file. You can pick any of the existing endpoints and it is fairly straightforward to follow
+1. For the endpoint to be accessible on UI, make changes to `swagger.json` file. You can pick any of the existing endpoints and it is fairly straightforward to follow.
 2. After making changes to this file, hard reload your web browser for the changes to reflect, in case the previous state is cached.
 
 ### Adding New APIs: Backend
-1. The `main.go` file initializes all packages
-2. For example, `HandleCommits` is defined in the `git_functions/service.go` file
-3. It states all endpoints related to commits on GitHub
+1. The `main.go` file initializes all packages.
+2. For example, `HandleCommits` is defined in the `git_functions/service.go` file.
+3. It states all endpoints related to commits on GitHub.
 4. To define a new endpoint, simply add it here.
 5. The corresponding function call is defined in the `pkg/handler/commit.go` file.
 6. You can add your function and the respective implementation here.
