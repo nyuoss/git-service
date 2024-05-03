@@ -18,9 +18,10 @@ It is hard for developers to track branches and tags in GitHub. Especially in an
 
 
 ## Prerequisites: Installation Instructions
-* Install the `golang` compiler from the [official source](https://go.dev) (version 1.21.3)
-* Include $GOPATH in your path via `export PATH=$PATH:$(go env GOPATH)/bin`
-* Adding the above to your `~/.bashrc` file will require `source ~/.bashrc`
+- Install the `golang` compiler from the [official source](https://go.dev) (version 1.21.3)
+- Include $GOPATH in your path via `export PATH=$PATH:$(go env GOPATH)/bin`
+- Adding the above to your `~/.bashrc` file will require `source ~/.bashrc`
+- Alternatively, if using a package manager like homebrew for example, install golang by running `brew install golang`
 
 ### Tools
 1. Language: Golang@1.21.3
