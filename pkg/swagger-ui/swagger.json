@@ -114,14 +114,6 @@
           },
           {
             "type": "string",
-            "x-go-name": "personal_access_token",
-            "description": "User's personal access token",
-            "name": "personal_access_token",
-            "in": "query",
-            "required": true
-          },
-          {
-            "type": "string",
             "x-go-name": "Repo",
             "description": "Repository name",
             "name": "repo",

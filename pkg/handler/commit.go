@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"git-service/pkg/model"
 	"io"
 	"net/http"
@@ -37,13 +38,13 @@ func (h *commitHandler) GetCommitByMessage(w http.ResponseWriter, r *http.Reques
 	w.Header().Set("Content-Type", "application/json")
 
 	// Get request data from query params
-	request, errMessage := GetCommitByMessageRequest(w, r)
+	request, errMessage := GetCommitByMessageRequest(r)
 	if errMessage != "" {
 		http.Error(w, errMessage, http.StatusBadRequest)
 		return
 	}
 
-	baseUrl := "https://api.github.com/repos/" + request.Owner + "/" + request.Repository + "/commits?per_page=100&page="
+	baseUrl := fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?per_page=100&page=", request.Owner, request.Repository)
 	method := "GET"
 
 	req, err := http.NewRequest(method, baseUrl, nil)
@@ -51,8 +52,6 @@ func (h *commitHandler) GetCommitByMessage(w http.ResponseWriter, r *http.Reques
 		http.Error(w, "Error generating new request: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	AddRequestHeaders(req, request.PersonalAccessToken)
 
 	resp := []model.CommitData{}
 
