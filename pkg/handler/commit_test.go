@@ -46,7 +46,7 @@ func Test_commitHandler_GetCommitByMessage(t *testing.T) {
 			break
 		}
 	}
-	if foundIssue {
+	if !foundIssue {
 		t.Errorf("Expected response to contain commit message %q, but it was not found", expectedMessage)
 	}
 }
