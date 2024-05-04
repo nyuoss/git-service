@@ -129,3 +129,15 @@ func getBranches(owner, repo, commitSHA string) ([]string, error) {
 
 	return branchNames, nil
 }
+
+func checkIfBranchExists(owner, repo, branch string) (exists bool, err error) {
+	client := resty.New()
+	resp, err := client.R().
+		Get(fmt.Sprintf("https://api.github.com/repos/%s/%s/branches/%s", owner, repo, branch))
+	if err != nil {
+		return
+	}
+
+	exists = resp.StatusCode() == http.StatusOK
+	return
+}
