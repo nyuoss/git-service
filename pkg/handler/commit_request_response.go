@@ -125,3 +125,40 @@ func GetCommitByMessageRequest(r *http.Request) (req model.GetCommitByMessageReq
 	}
 	return
 }
+
+func GetCommitReleasedRequest(r *http.Request) (req model.CommitReleasedRequest, errMessage string) {
+	vars := mux.Vars(r)
+	queryParams := r.URL.Query()
+
+	owner := vars["owner"]
+	if len(owner) == 0 {
+		errMessage = "Owner cannot be empty"
+		return
+	}
+
+	repo := vars["repo"]
+	if len(repo) == 0 {
+		errMessage = "Repository cannot be empty"
+		return
+	}
+
+	commit_id := queryParams.Get("commit_id")
+	if len(commit_id) == 0 {
+		errMessage = "Commit Id cannot be empty"
+		return
+	}
+
+	release_branch := queryParams.Get("release_branch")
+	if len(release_branch) == 0 {
+		errMessage = "Release Branch cannot be empty"
+		return
+	}
+
+	req = model.CommitReleasedRequest{
+		Owner:         owner,
+		Repository:    repo,
+		CommitId:      commit_id,
+		ReleaseBranch: release_branch,
+	}
+	return
+}
