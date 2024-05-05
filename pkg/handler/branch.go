@@ -60,7 +60,13 @@ func (h *branchHandler) GetActiveBranches(w http.ResponseWriter, r *http.Request
 
 	var activeBranches []string
 	for _, branch := range repoBranches {
-		commit, _ := getCommit(owner, repo, branch.Commit.SHA)
+		commit, err := getCommit(owner, repo, branch.Commit.SHA)
+
+		if err != nil {
+			http.Error(w, "Commit not found", http.StatusInternalServerError)
+			return
+		}
+
 		latestCommitDate := commit.Author.Date
 		date, err := time.Parse(time.RFC3339, latestCommitDate)
 
