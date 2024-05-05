@@ -21,6 +21,15 @@ func TestGetBranchByTag(t *testing.T) {
 
 	router.ServeHTTP(rr, req)
 
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	expectedContentType := "application/json"
+	if contentType := rr.Header().Get("Content-Type"); contentType != expectedContentType {
+		t.Errorf("handler returned wrong content type: got %v want %v", contentType, expectedContentType)
+	}
+
 	expectedResponseBody := `{"branches":["master"]}`
 	actualResponseBody := strings.TrimSpace(rr.Body.String())
 
