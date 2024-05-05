@@ -94,7 +94,7 @@
     "/{owner}/{repo}/commit/getCommitByMessage": {
       "get": {
         "tags": ["commit"],
-        "summary": "Accepts a message about commit . Provides commit id and name.",
+        "summary": "Accepts a message about commit. Provides commit id and name.",
         "operationId": "getCommitByMessage",
         "parameters": [
           {
@@ -198,6 +198,52 @@
         "responses": {
           "200": {
             "$ref": "#/responses/GetCommitsBeforeResponse"
+          }
+        }
+      }
+    },
+    "/{owner}/{repo}/commit/commitReleased": {
+      "get": {
+        "tags": ["commit"],
+        "summary": "Accepts commit id and release branch name. Tells if the commit is released or not.",
+        "operationId": "commitReleased",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Commit Id",
+            "description": "Commit Id",
+            "name": "commit_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Release Branch",
+            "description": "Release Branch",
+            "name": "release_branch",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Owner",
+            "description": "Owner of the repository",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Repo",
+            "description": "Repository name",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/commitReleased"
           }
         }
       }

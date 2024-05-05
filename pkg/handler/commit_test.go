@@ -50,3 +50,73 @@ func Test_commitHandler_GetCommitByMessage(t *testing.T) {
 		t.Errorf("Expected response to contain commit message %q, but it was not found", expectedMessage)
 	}
 }
+
+func Test_commitHandler_CommitReleased_Branch_Does_Not_Exist(t *testing.T) {
+	// Mock request data
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req = mux.SetURLVars(req, map[string]string{"owner": "nyuoss", "repo": "git-service"})
+	req.URL.RawQuery = "commit_id=1ed709f8ce346c3487cd09eb0875f11efd9bb2dd&release_branch=testing"
+
+	// Create a ResponseRecorder to capture the response
+	rr := httptest.NewRecorder()
+
+	// Create a mock commit handler
+	h := &commitHandler{}
+
+	h.CommitReleased(rr, req)
+	if rr.Code != http.StatusBadRequest {
+		t.Errorf("Expected status code %d but got %d", http.StatusBadRequest, rr.Code)
+	}
+}
+
+func Test_commitHandler_CommitReleased_Commit_Does_Not_Exist(t *testing.T) {
+	// Mock request data
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req = mux.SetURLVars(req, map[string]string{"owner": "nyuoss", "repo": "git-service"})
+	req.URL.RawQuery = "commit_id=1ed7hd7sce346c3487cd09eb0875f11efd9bb2dd&release_branch=main"
+
+	// Create a ResponseRecorder to capture the response
+	rr := httptest.NewRecorder()
+
+	// Create a mock commit handler
+	h := &commitHandler{}
+
+	h.CommitReleased(rr, req)
+	if rr.Code != http.StatusOK {
+		t.Errorf("Expected status code %d but got %d", http.StatusOK, rr.Code)
+	}
+
+	var resp model.CommitReleasedResponse
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Errorf("Error decoding response body: %v", err)
+	}
+	if resp.CommitReleased {
+		t.Errorf("Expected false, but got true")
+	}
+}
+
+func Test_commitHandler_CommitReleased_Commit_Exists(t *testing.T) {
+	// Mock request data
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req = mux.SetURLVars(req, map[string]string{"owner": "nyuoss", "repo": "git-service"})
+	req.URL.RawQuery = "commit_id=ba7daee4b67892dfce920514a3a8fab7fa717fce&release_branch=main"
+
+	// Create a ResponseRecorder to capture the response
+	rr := httptest.NewRecorder()
+
+	// Create a mock commit handler
+	h := &commitHandler{}
+
+	h.CommitReleased(rr, req)
+	if rr.Code != http.StatusOK {
+		t.Errorf("Expected status code %d but got %d", http.StatusOK, rr.Code)
+	}
+
+	var resp model.CommitReleasedResponse
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Errorf("Error decoding response body: %v", err)
+	}
+	if !resp.CommitReleased {
+		t.Errorf("Expected true, but got false")
+	}
+}

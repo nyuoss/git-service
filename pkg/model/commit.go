@@ -66,3 +66,14 @@ type GetCommitByMessageRequest struct {
 	Repository    string
 	CommitMessage string
 }
+
+type CommitReleasedRequest struct {
+	Owner         string
+	Repository    string
+	CommitId      string
+	ReleaseBranch string
+}
+
+type CommitReleasedResponse struct {
+	CommitReleased bool
+}
