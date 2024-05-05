@@ -60,7 +60,13 @@ func (h *branchHandler) GetActiveBranches(w http.ResponseWriter, r *http.Request
 
 	var activeBranches []string
 	for _, branch := range repoBranches {
-		commit, _ := getCommit(owner, repo, branch.Commit.SHA)
+		commit, err := getCommit(owner, repo, branch.Commit.SHA)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
 		latestCommitDate := commit.Author.Date
 		date, err := time.Parse(time.RFC3339, latestCommitDate)
 
@@ -92,7 +98,7 @@ func getCommit(owner, repo, commitSHA string) (*Commit, error) {
 		Get(fmt.Sprintf("https://api.github.com/repos/%s/%s/commits/%s", owner, repo, commitSHA))
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(err.Error(), http.StatusInternalServerError)
 	}
 
 	if resp.StatusCode() != http.StatusOK {
