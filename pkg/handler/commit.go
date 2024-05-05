@@ -134,9 +134,10 @@ func (h *commitHandler) CommitReleased(w http.ResponseWriter, r *http.Request) {
 
 	commitReleased := false
 	var commits []model.CommitData
+	client := &http.Client{}
 
 	for page_number := 1; ; page_number++ {
-		commits, errMessage = getCommitsByPageNumber(baseUrl, page_number, req)
+		commits, errMessage = getCommitsByPageNumber(baseUrl, page_number, req, client)
 		if errMessage != "" {
 			http.Error(w, errMessage, http.StatusInternalServerError)
 			return
@@ -165,7 +166,7 @@ func (h *commitHandler) CommitReleased(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getCommitsByPageNumber(baseUrl string, page_number int, req *http.Request) (commits []model.CommitData, errMessage string) {
+func getCommitsByPageNumber(baseUrl string, page_number int, req *http.Request, client *http.Client) (commits []model.CommitData, errMessage string) {
 	url := baseUrl + strconv.Itoa(page_number)
 	u, err := urlpkg.Parse(url)
 	if err != nil {
@@ -174,7 +175,6 @@ func getCommitsByPageNumber(baseUrl string, page_number int, req *http.Request) 
 	}
 	req.URL = u
 
-	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
 		errMessage = "Error making request to GitHub: " + err.Error()
