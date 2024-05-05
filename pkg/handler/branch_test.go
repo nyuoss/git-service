@@ -62,9 +62,8 @@ func TestGetActiveBranches(t *testing.T) {
 
 	expected := `{"branches":["master"]}`
 	got := strings.TrimSpace(rr.Body.String())
-	
+
 	if got != expected {
 		t.Errorf("Handler returned unexpected body")
 	}
 }
-
