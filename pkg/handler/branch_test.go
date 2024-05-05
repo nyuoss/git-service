@@ -52,18 +52,20 @@ func TestGetActiveBranches(t *testing.T) {
 	r.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("Handler returned incorrect status code")
+		t.Errorf("Handler returned incorrect status code: got %v want %v",
+			status, http.StatusOK)
 	}
 
 	expectedContentType := "application/json"
 	if contentType := rr.Header().Get("Content-Type"); contentType != expectedContentType {
-		t.Errorf("Handler returned incorrect content type")
+		t.Errorf("Handler returned incorrect content type: got %v want %v", contentType, expectedContentType)
 	}
 
 	expected := `{"branches":["master"]}`
 	got := strings.TrimSpace(rr.Body.String())
 
 	if got != expected {
-		t.Errorf("Handler returned unexpected body")
+		t.Errorf("Handler returned unexpected body: got %v want %v",
+			rr.Body.String(), expected)
 	}
 }
