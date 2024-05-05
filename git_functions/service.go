@@ -75,6 +75,9 @@ func (s *gitServer) HandleCommits() {
 		CommitPrefix+"/getCommitsAfter", s.ch.GetCommitsAfter).
 		Methods(http.MethodGet)
 
+	s.r.HandleFunc(
+		CommitPrefix+"/commitReleased", s.ch.CommitReleased).
+		Methods(http.MethodGet)
 }
 
 func (s *gitServer) HandleTags() {
