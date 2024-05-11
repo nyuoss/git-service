@@ -143,6 +143,13 @@
           },
           {
             "type": "string",
+            "x-go-name": "Number",
+            "description": "number of commits",
+            "name": "number",
+            "in": "query"
+          },
+          {
+            "type": "string",
             "x-go-name": "Owner",
             "description": "Owner of the repository",
             "name": "owner",
@@ -248,7 +255,7 @@
         }
       }
     },
-    "/{owner}/{repo}/job/getJobsByCommit": {
+    "/{owner}/{repo}/commit/getJobsByCommit": {
       "get": {
         "tags": ["job"],
         "summary": "Accepts a commit id. Provides the CI/CD jobs associated with the given commit.",
@@ -256,10 +263,11 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "Commit",
-            "description": "commit id",
-            "name": "commit",
-            "in": "query"
+            "x-go-name": "commitSHA",
+            "description": "commitSHA",
+            "name": "commitSHA",
+            "in": "query",
+            "required": true
           },
           {
             "type": "string",
@@ -442,15 +450,40 @@
       "x-go-package": "git-service/pkg/handler"
     },
     "GetJobsByCommitResp": {
-      "type": "object",
-      "properties": {
-        "jobs": {
-          "description": "[jobUrl1, jobUrl2, jobUrl3...]",
-          "type": "array",
-          "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
             "type": "string"
           },
-          "x-go-name": "Jobs"
+          "avatar_url": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "node_id": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "target_url": {
+            "type": "string"
+          },
+          "context": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          }
         }
       },
       "x-go-package": "git-service/pkg/handler"

@@ -8,8 +8,13 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/go-resty/resty/v2"
 
 	urlpkg "net/url"
+
+	"github.com/gorilla/mux"
 )
 
 type CommitHandler interface {
@@ -17,6 +22,7 @@ type CommitHandler interface {
 	GetCommitsAfter(http.ResponseWriter, *http.Request)
 	GetCommitByMessage(http.ResponseWriter, *http.Request)
 	CommitReleased(http.ResponseWriter, *http.Request)
+	GetJobsByCommit(http.ResponseWriter, *http.Request)
 }
 
 var _ CommitHandler = &commitHandler{}
@@ -32,7 +38,110 @@ func (h *commitHandler) GetCommitsBefore(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *commitHandler) GetCommitsAfter(w http.ResponseWriter, r *http.Request) {
-	// TODO
+	vars := mux.Vars(r)
+	owner := vars["owner"]
+	repo := vars["repo"]
+
+	queryParams := r.URL.Query()
+
+	commitID := queryParams.Get("commit")
+	number := queryParams.Get("number")
+
+	commit, err := getCommit(owner, repo, commitID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	commitDateTime := commit.Author.Date
+	datetime, err := time.Parse(time.RFC3339, commitDateTime)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	client := resty.New()
+	var branches []Branch
+
+	apiURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/branches", owner, repo)
+	resp, err := client.R().SetResult(&branches).Get(apiURL)
+
+	if err != nil {
+		http.Error(w, "Failed to fetch branches from the GitHub API", http.StatusInternalServerError)
+		return
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		http.Error(w, "GitHub API returned status code: %d", resp.StatusCode())
+		return
+	}
+
+	commitsByBranch := make(map[string][]string)
+	additions := 0
+	for _, branch := range branches {
+		commits, err := getBranchCommits(owner, repo, branch.Name)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		var filteredCommits []string
+		for _, commit := range commits {
+			commitTime, err := time.Parse(time.RFC3339, commit.Commit.Author.Date)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			if commitTime.After(datetime) {
+				filteredCommits = append(filteredCommits, commit.SHA)
+				additions++
+			}
+
+			if number != "" {
+				num, err := strconv.Atoi(number)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+
+				if num == additions {
+					break
+				}
+			}
+		}
+
+		if len(filteredCommits) > 0 {
+			commitsByBranch[branch.Name] = filteredCommits
+		}
+	}
+
+	response := GetCommitsAfterResp{
+		Commits: commitsByBranch,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(response)
+}
+
+func getBranchCommits(owner, repo, branchName string) ([]model.CommitData, error) {
+	var commits []model.CommitData
+	client := resty.New()
+
+	resp, err := client.R().
+		SetResult(&commits).
+		Get(fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?sha=%s", owner, repo, branchName))
+
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return nil, fmt.Errorf("GitHub API returned status code: %d", resp.StatusCode())
+	}
+
+	return commits, nil
 }
 
 func (h *commitHandler) GetCommitByMessage(w http.ResponseWriter, r *http.Request) {
@@ -194,4 +303,63 @@ func getCommitsByPageNumber(baseUrl string, page_number int, req *http.Request, 
 		errMessage = "Error unmarshalling JSON: " + err.Error()
 	}
 	return
+}
+
+func (h *commitHandler) GetJobsByCommit(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	owner := vars["owner"]
+	repo := vars["repo"]
+	commitSHA := r.URL.Query().Get("commitSHA")
+	if commitSHA == "" {
+		http.Error(w, "SHA parameter is required", http.StatusBadRequest)
+		return
+	}
+
+	statuses, err := GetCommitStatuses(owner, repo, commitSHA)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error fetching commit statuses: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	statusesJSON, err := json.Marshal(statuses)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error marshalling statuses to JSON: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if _, err := w.Write(statusesJSON); err != nil {
+		http.Error(w, fmt.Sprintf("Error writing response: %v", err), http.StatusInternalServerError)
+	}
+}
+
+func GetCommitStatuses(owner, repo, commitSHA string) ([]Status, error) {
+	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/commits/%s/status", owner, repo, commitSHA)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Accept", "application/vnd.github+json")
+	req.Header.Set("X-GitHub-Api-Version", "2022-11-28")
+
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var statusResp GitHubStatusResponse
+	if err := json.Unmarshal(body, &statusResp); err != nil {
+		return nil, err
+	}
+
+	return statusResp.Statuses, nil
 }
