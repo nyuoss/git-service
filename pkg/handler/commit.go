@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"git-service/pkg/model"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -245,7 +244,7 @@ func GetCommitStatuses(owner, repo, commitSHA string) ([]Status, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
