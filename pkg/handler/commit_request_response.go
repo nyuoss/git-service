@@ -1,3 +1,4 @@
+
 package handler
 
 import (
@@ -94,6 +95,24 @@ type GetCommitByNameResp struct {
 type GetCommitByNameRespWrapper struct {
 	// in:body
 	Body GetCommitByNameResp `json:"body"`
+}
+
+type Status struct {
+	URL         string `json:"url"`
+	AvatarURL   string `json:"avatar_url"`
+	ID          int    `json:"id"`
+	NodeID      string `json:"node_id"`
+	State       string `json:"state"`
+	Description string `json:"description"`
+	TargetURL   string `json:"target_url"`
+	Context     string `json:"context"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
+}
+
+type GitHubStatusResponse struct {
+	State    string   `json:"state"`
+	Statuses []Status `json:"statuses"`
 }
 
 func GetCommitByNameRequest(r *http.Request) (req model.GetCommitByNameRequest, errMessage string) {
