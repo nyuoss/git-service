@@ -11,10 +11,9 @@ It is hard for developers to track branches and tags in GitHub. Especially in an
 5. `/<owner>/<repo>/commit/getCommitsBefore`: Provides the commits before the given commit in the branches it is present in
 6. `/<owner>/<repo>/commit/getCommitsAfter`: Provides the commits after the given commit in the branches it is present in
 7. `/<owner>/<repo>/commit/getCommitByName`: Provides list of commits when searched by name
-8. `/<owner>/<repo>/commit/getCommitByDescription`: Provides list of commits when searched by description
-9. `/<owner>/<repo>/commit/getCommitByAuthor`: Provides list of commits when searched by author
-10. `/<owner>/<repo>job/getJobsByCommit`: Provides the CI/CD jobs associated with the given commit
-11. `/<owner>/<repo>/commit/commitReleased`: Accepts commit id and release branch name. Tells if the commit is released or not
+8. `/<owner>/<repo>/commit/getCommitByAuthor`: Provides list of commits when searched by author
+9. `/<owner>/<repo>job/getJobsByCommit`: Provides the CI/CD jobs associated with the given commit
+10. `/<owner>/<repo>/commit/commitReleased`: Accepts commit id and release branch name. Tells if the commit is released or not
 
 
 ## Prerequisites: Installation Instructions
