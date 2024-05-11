@@ -62,17 +62,19 @@ type Author struct {
 }
 
 type GetCommitByNameRequest struct {
-	Owner         string
-	Repository    string
-	CommitMessage string
-	Branch        string
+	Owner               string
+	Repository          string
+	CommitMessage       string
+	Branch              string
+	PersonalAccessToken string
 }
 
 type CommitReleasedRequest struct {
-	Owner         string
-	Repository    string
-	CommitId      string
-	ReleaseBranch string
+	Owner               string
+	Repository          string
+	CommitId            string
+	ReleaseBranch       string
+	PersonalAccessToken string
 }
 
 type CommitReleasedResponse struct {
