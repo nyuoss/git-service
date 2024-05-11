@@ -3,7 +3,6 @@ module git-service
 go 1.21
 
 require (
-	github.com/go-sql-driver/mysql v1.8.1
 	github.com/gorilla/mux v1.8.1
 	github.com/rs/cors v1.10.1
 )
@@ -75,3 +74,5 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+require github.com/go-resty/resty/v2 v2.12.0
