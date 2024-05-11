@@ -143,6 +143,13 @@
           },
           {
             "type": "string",
+            "x-go-name": "Number",
+            "description": "number of commits",
+            "name": "number",
+            "in": "query"
+          },
+          {
+            "type": "string",
             "x-go-name": "Owner",
             "description": "Owner of the repository",
             "name": "owner",
