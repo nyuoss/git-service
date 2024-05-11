@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"git-service/pkg/model"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -219,8 +218,9 @@ func (h *commitHandler) GetJobsByCommit(w http.ResponseWriter, r *http.Request) 
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(statusesJSON)
+	if _, err := w.Write(statusesJSON); err != nil {
+		http.Error(w, fmt.Sprintf("Error writing response: %v", err), http.StatusInternalServerError)
+	}
 }
 
 func GetCommitStatuses(owner, repo, commitSHA string) ([]Status, error) {
@@ -241,7 +241,7 @@ func GetCommitStatuses(owner, repo, commitSHA string) ([]Status, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
