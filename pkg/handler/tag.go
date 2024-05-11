@@ -11,6 +11,7 @@ import (
 
 type TagHandler interface {
 	GetChildTagsByCommit(http.ResponseWriter, *http.Request)
+	GetParentTagsByCommit(http.ResponseWriter, *http.Request)
 }
 
 var _ TagHandler = &tagHandler{}
@@ -114,3 +115,6 @@ func (h *tagHandler) GetChildTagsByCommit(w http.ResponseWriter, r *http.Request
 	_ = json.NewEncoder(w).Encode(response)
 }
 
+func (h *tagHandler) GetParentTagsByCommit(w http.ResponseWriter, r *http.Request) {
+	// TODO
+}
