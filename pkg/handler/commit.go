@@ -58,7 +58,7 @@ func (h *commitHandler) GetCommitsAfter(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	commitDateTime := commit.Author.Date
 	datetime, err := time.Parse(time.RFC3339, commitDateTime)
 	if err != nil {
@@ -104,7 +104,6 @@ func (h *commitHandler) GetCommitsAfter(w http.ResponseWriter, r *http.Request) 
 				additions++
 			}
 
-			
 			if number != "" {
 				num, err := strconv.Atoi(number)
 				if err != nil {
