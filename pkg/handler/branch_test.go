@@ -39,7 +39,7 @@ func TestGetBranchByTag(t *testing.T) {
 }
 
 func TestGetActiveBranches(t *testing.T) {
-	req, err := http.NewRequest("GET", "/v1/aryamanrishabh/metricsjs/branch/getActiveBranches?unit=h&number=300", nil)
+	req, err := http.NewRequest("GET", "/v1/aryamanrishabh/metricsjs/branch/getActiveBranches?unit=h&number=1000", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
