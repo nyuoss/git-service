@@ -117,4 +117,54 @@ func (h *tagHandler) GetChildTagsByCommit(w http.ResponseWriter, r *http.Request
 
 func (h *tagHandler) GetParentTagsByCommit(w http.ResponseWriter, r *http.Request) {
 	// TODO
+	vars := mux.Vars(r)
+	owner := vars["owner"]
+	repo := vars["repo"]
+
+	queryParams := r.URL.Query()
+	commitSha := queryParams.Get("commit")
+
+	client := resty.New()
+
+	// Get all tags from the repo
+	var repoTags []Tag
+	apiURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/tags", owner, repo)
+	resp, err := client.R().SetResult(&repoTags).Get(apiURL)
+	if err != nil {
+		http.Error(w, "Failed to fetch tags from the GitHub API", http.StatusInternalServerError)
+		return
+	}
+	if resp.StatusCode() != http.StatusOK {
+		http.Error(w, "GitHub API returned status code: %d", resp.StatusCode())
+		return
+	}
+
+	// Create a map to find parent tags
+	parentTags := make(map[string][]string)
+	for _, tag := range repoTags {
+		apiURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/compare/%s...%s", owner, repo, commitSha, tag.Commit.SHA)
+		var comparisonResult CompareResult
+		resp, err := client.R().SetResult(&comparisonResult).Get(apiURL)
+		if err != nil {
+			http.Error(w, "Failed to compare commits from the GitHub API", http.StatusInternalServerError)
+			return
+		}
+		if resp.StatusCode() != http.StatusOK {
+			http.Error(w, "GitHub API returned status code: %d", resp.StatusCode())
+			return
+		}
+
+		// Check if the base commit (commitSha) is behind the tag commit, meaning commitSha is an ancestor of tag.Commit.SHA
+		if comparisonResult.Status == "behind" && comparisonResult.AheadBy > 0 {
+			parentTags[tag.Name] = append(parentTags[tag.Name], commitSha)
+		}
+	}
+
+	response := GetParentTagsByCommitResp{
+		Tags: parentTags,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(response)
 }
