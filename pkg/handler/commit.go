@@ -20,7 +20,7 @@ import (
 type CommitHandler interface {
 	GetCommitsBefore(http.ResponseWriter, *http.Request)
 	GetCommitsAfter(http.ResponseWriter, *http.Request)
-	GetCommitByMessage(http.ResponseWriter, *http.Request)
+	GetCommitByName(http.ResponseWriter, *http.Request)
 	CommitReleased(http.ResponseWriter, *http.Request)
 	GetJobsByCommit(http.ResponseWriter, *http.Request)
 }
@@ -31,6 +31,12 @@ type commitHandler struct{}
 
 func NewCommitHandler() CommitHandler {
 	return &commitHandler{}
+}
+
+func AddhttpAuthRequestHeaders(req *http.Request, personalAccessToken string) {
+	req.Header.Add("Accept", "application/vnd.github+json")
+	req.Header.Add("Authorization", "Bearer "+personalAccessToken)
+	req.Header.Add("X-GitHub-Api-Version", "2022-11-28")
 }
 
 func (h *commitHandler) GetCommitsBefore(w http.ResponseWriter, r *http.Request) {
@@ -144,17 +150,27 @@ func getBranchCommits(owner, repo, branchName string) ([]model.CommitData, error
 	return commits, nil
 }
 
-func (h *commitHandler) GetCommitByMessage(w http.ResponseWriter, r *http.Request) {
+func (h *commitHandler) GetCommitByName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// Get request data from query params
-	request, errMessage := GetCommitByMessageRequest(r)
+	request, errMessage := GetCommitByNameRequest(r)
 	if errMessage != "" {
 		http.Error(w, errMessage, http.StatusBadRequest)
 		return
 	}
 
-	baseUrl := fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?per_page=100&page=", request.Owner, request.Repository)
+	branchExists, err := checkIfBranchExists(request.Owner, request.Repository, request.Branch, request.PersonalAccessToken)
+	if err != nil {
+		http.Error(w, "Error checking if branch exists: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !branchExists {
+		http.Error(w, "Branch does not exist in the repository", http.StatusBadRequest)
+		return
+	}
+
+	baseUrl := fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?sha=%s&per_page=100&page=", request.Owner, request.Repository, request.Branch)
 	method := "GET"
 
 	req, err := http.NewRequest(method, baseUrl, nil)
@@ -163,38 +179,16 @@ func (h *commitHandler) GetCommitByMessage(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	AddhttpAuthRequestHeaders(req, request.PersonalAccessToken)
+
 	resp := []model.CommitData{}
+	var commits []model.CommitData
+	client := &http.Client{}
 
 	for page_number := 1; ; page_number++ {
-		url := baseUrl + strconv.Itoa(page_number)
-		u, err := urlpkg.Parse(url)
-		if err != nil {
-			http.Error(w, "Error generating new URL: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-		req.URL = u
-
-		// Define a variable of type []Commit to store the data
-		var commits []model.CommitData
-
-		client := &http.Client{}
-		res, err := client.Do(req)
-		if err != nil {
-			http.Error(w, "Error making request to GitHub: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-		defer res.Body.Close()
-
-		body, err := io.ReadAll(res.Body)
-		if err != nil {
-			http.Error(w, "Error reading response: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Unmarshal JSON data into commits variable
-		err = json.Unmarshal(body, &commits)
-		if err != nil {
-			http.Error(w, "Error unmarshalling JSON: "+err.Error(), http.StatusInternalServerError)
+		commits, errMessage = getCommitsByPageNumber(baseUrl, page_number, req, client)
+		if errMessage != "" {
+			http.Error(w, errMessage, http.StatusInternalServerError)
 			return
 		}
 
@@ -222,7 +216,7 @@ func (h *commitHandler) CommitReleased(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	branchExists, err := checkIfBranchExists(request.Owner, request.Repository, request.ReleaseBranch)
+	branchExists, err := checkIfBranchExists(request.Owner, request.Repository, request.ReleaseBranch, request.PersonalAccessToken)
 	if err != nil {
 		http.Error(w, "Error checking if branch exists: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -240,6 +234,8 @@ func (h *commitHandler) CommitReleased(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error generating new request: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	AddhttpAuthRequestHeaders(req, request.PersonalAccessToken)
 
 	commitReleased := false
 	var commits []model.CommitData

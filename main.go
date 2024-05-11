@@ -3,7 +3,6 @@ package main
 import (
 	gitService "git-service/git_functions"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 )
 

@@ -91,18 +91,19 @@
         }
       }
     },
-    "/{owner}/{repo}/commit/getCommitByMessage": {
+    "/{owner}/{repo}/commit/getCommitByName": {
       "get": {
         "tags": ["commit"],
         "summary": "Accepts a message about commit. Provides commit id and name.",
-        "operationId": "getCommitByMessage",
+        "operationId": "getCommitByName",
         "parameters": [
           {
             "type": "string",
             "x-go-name": "Message",
             "description": "Message",
             "name": "message",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "type": "string",
@@ -119,11 +120,26 @@
             "name": "repo",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Branch",
+            "description": "Branch name",
+            "name": "branch",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Personal Access Token",
+            "description": "For authorization in case you get wrong branch does not exist or 4xx/5xx errors",
+            "name": "personalAccessToken",
+            "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "$ref": "#/responses/GetCommitByMessageResponse"
+            "$ref": "#/responses/GetCommitByNameResponse"
           }
         }
       }
@@ -246,6 +262,13 @@
             "name": "repo",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Personal Access Token",
+            "description": "For authorization in case you get wrong branch does not exist or 4xx/5xx errors",
+            "name": "personalAccessToken",
+            "in": "query"
           }
         ],
         "responses": {
@@ -411,7 +434,7 @@
       },
       "x-go-package": "git-service/pkg/handler"
     },
-    "GetCommitByMessageResp": {
+    "GetCommitByNameResp": {
       "type": "object",
       "x-go-package": "git-service/pkg/handler"
     },
@@ -530,7 +553,7 @@
     "GetCommitsBeforeResponse": {
       "description": "",
       "schema": {
-        "$ref": "#/definitions/GetCommitByMessageResp"
+        "$ref": "#/definitions/GetCommitByNameResp"
       }
     },
     "GetJobsByCommitResponse": {

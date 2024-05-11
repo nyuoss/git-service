@@ -2,20 +2,25 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"git-service/pkg/model"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
 	"github.com/gorilla/mux"
 )
 
-func Test_commitHandler_GetCommitByMessage(t *testing.T) {
+func Test_commitHandler_GetCommitByName(t *testing.T) {
+	// Retrieve GitHub personal access token from environment variable
+	token := os.Getenv("SARTHAK_GITHUB_PERSONAL_ACCESS_TOKEN")
+
 	// Mock request data
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	req = mux.SetURLVars(req, map[string]string{"owner": "gcivil-nyu-org", "repo": "INT2-Monday-Spring2024-Team-1"})
-	req.URL.RawQuery = "message=update allowed hosts again"
+	req.URL.RawQuery = fmt.Sprintf("personalAccessToken=%s&branch=master&message=update", token)
 
 	// Create a ResponseRecorder to capture the response
 	rr := httptest.NewRecorder()
@@ -24,7 +29,7 @@ func Test_commitHandler_GetCommitByMessage(t *testing.T) {
 	h := &commitHandler{}
 
 	// Call the handler function with the mock request and response
-	h.GetCommitByMessage(rr, req)
+	h.GetCommitByName(rr, req)
 
 	// Check the status code of the response
 	if rr.Code != http.StatusOK {
@@ -38,7 +43,7 @@ func Test_commitHandler_GetCommitByMessage(t *testing.T) {
 	}
 
 	// Check if the response contains the expected commit message
-	expectedMessage := "update allowed hosts again"
+	expectedMessage := "update"
 	foundIssue := false
 	for _, c := range resp {
 		if !strings.Contains(strings.ToLower(c.Commit.Message), strings.ToLower(expectedMessage)) {
@@ -48,6 +53,27 @@ func Test_commitHandler_GetCommitByMessage(t *testing.T) {
 	}
 	if foundIssue {
 		t.Errorf("Expected response to contain commit message %q, but it was not found", expectedMessage)
+	}
+}
+
+func Test_commitHandler_GetCommitByName_Branch_Does_Not_Exist(t *testing.T) {
+	// Retrieve GitHub personal access token from environment variable
+	token := os.Getenv("SARTHAK_GITHUB_PERSONAL_ACCESS_TOKEN")
+
+	// Mock request data
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req = mux.SetURLVars(req, map[string]string{"owner": "nyuoss", "repo": "git-service"})
+	req.URL.RawQuery = fmt.Sprintf("branch=testing&personalAccessToken=%s", token)
+
+	// Create a ResponseRecorder to capture the response
+	rr := httptest.NewRecorder()
+
+	// Create a mock commit handler
+	h := &commitHandler{}
+
+	h.GetCommitByName(rr, req)
+	if rr.Code != http.StatusBadRequest {
+		t.Errorf("Expected status code %d but got %d", http.StatusBadRequest, rr.Code)
 	}
 }
 
@@ -70,10 +96,13 @@ func Test_commitHandler_CommitReleased_Branch_Does_Not_Exist(t *testing.T) {
 }
 
 func Test_commitHandler_CommitReleased_Commit_Does_Not_Exist(t *testing.T) {
+	// Retrieve GitHub personal access token from environment variable
+	token := os.Getenv("SARTHAK_GITHUB_PERSONAL_ACCESS_TOKEN")
+
 	// Mock request data
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	req = mux.SetURLVars(req, map[string]string{"owner": "nyuoss", "repo": "git-service"})
-	req.URL.RawQuery = "commit_id=1ed7hd7sce346c3487cd09eb0875f11efd9bb2dd&release_branch=main"
+	req.URL.RawQuery = fmt.Sprintf("commit_id=1ed7hd7sce346c3487cd09eb0875f11efd9bb2dd&release_branch=main&personalAccessToken=%s", token)
 
 	// Create a ResponseRecorder to capture the response
 	rr := httptest.NewRecorder()
@@ -96,10 +125,13 @@ func Test_commitHandler_CommitReleased_Commit_Does_Not_Exist(t *testing.T) {
 }
 
 func Test_commitHandler_CommitReleased_Commit_Exists(t *testing.T) {
+	// Retrieve GitHub personal access token from environment variable
+	token := os.Getenv("SARTHAK_GITHUB_PERSONAL_ACCESS_TOKEN")
+
 	// Mock request data
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	req = mux.SetURLVars(req, map[string]string{"owner": "nyuoss", "repo": "git-service"})
-	req.URL.RawQuery = "commit_id=ba7daee4b67892dfce920514a3a8fab7fa717fce&release_branch=main"
+	req.URL.RawQuery = fmt.Sprintf("commit_id=ba7daee4b67892dfce920514a3a8fab7fa717fce&release_branch=main&personalAccessToken=%s", token)
 
 	// Create a ResponseRecorder to capture the response
 	rr := httptest.NewRecorder()

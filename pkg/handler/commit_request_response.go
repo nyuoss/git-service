@@ -67,33 +67,33 @@ type GetCommitsAfterRespWrapper struct {
 	Body GetCommitsAfterResp `json:"body"`
 }
 
-// swagger:route GET /{owner}/{repo}/commit/getCommitByMessage commit getCommitByMessage
+// swagger:route GET /{owner}/{repo}/commit/getCommitByName commit getCommitByName
 //
 // Accepts a message about commit . Provides commit id and name.
 //
 //     Responses:
-//       200: GetCommitByMessageResponse
+//       200: GetCommitByNameResponse
 
-// swagger:parameters getCommitByMessage
-type GetCommitByMessageReq struct {
+// swagger:parameters getCommitByName
+type GetCommitByNameReq struct {
 	// message
 	// in: query
 	Message string `json:"message"`
 }
 
-type GetCommitByMessageReqWrapper struct {
+type GetCommitByNameReqWrapper struct {
 	// in:body
-	Body GetCommitByMessageReq `json:"body"`
+	Body GetCommitByNameReq `json:"body"`
 }
 
-type GetCommitByMessageResp struct {
+type GetCommitByNameResp struct {
 	// TODO: please add
 }
 
 // swagger:response GetCommitsBeforeResponse
-type GetCommitByMessageRespWrapper struct {
+type GetCommitByNameRespWrapper struct {
 	// in:body
-	Body GetCommitByMessageResp `json:"body"`
+	Body GetCommitByNameResp `json:"body"`
 }
 
 type Status struct {
@@ -114,7 +114,7 @@ type GitHubStatusResponse struct {
 	Statuses []Status `json:"statuses"`
 }
 
-func GetCommitByMessageRequest(r *http.Request) (req model.GetCommitByMessageRequest, errMessage string) {
+func GetCommitByNameRequest(r *http.Request) (req model.GetCommitByNameRequest, errMessage string) {
 	vars := mux.Vars(r)
 	queryParams := r.URL.Query()
 
@@ -136,10 +136,20 @@ func GetCommitByMessageRequest(r *http.Request) (req model.GetCommitByMessageReq
 		return
 	}
 
-	req = model.GetCommitByMessageRequest{
-		Owner:         owner,
-		Repository:    repo,
-		CommitMessage: message,
+	branch := queryParams.Get("branch")
+	if len(branch) == 0 {
+		errMessage = "Branch cannot be empty"
+		return
+	}
+
+	personalAccessToken := queryParams.Get("personalAccessToken")
+
+	req = model.GetCommitByNameRequest{
+		Owner:               owner,
+		Repository:          repo,
+		CommitMessage:       message,
+		Branch:              branch,
+		PersonalAccessToken: personalAccessToken,
 	}
 	return
 }
@@ -172,11 +182,14 @@ func GetCommitReleasedRequest(r *http.Request) (req model.CommitReleasedRequest,
 		return
 	}
 
+	personalAccessToken := queryParams.Get("personalAccessToken")
+
 	req = model.CommitReleasedRequest{
-		Owner:         owner,
-		Repository:    repo,
-		CommitId:      commit_id,
-		ReleaseBranch: release_branch,
+		Owner:               owner,
+		Repository:          repo,
+		CommitId:            commit_id,
+		ReleaseBranch:       release_branch,
+		PersonalAccessToken: personalAccessToken,
 	}
 	return
 }
