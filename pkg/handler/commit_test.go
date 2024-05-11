@@ -2,9 +2,11 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"git-service/pkg/model"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -12,10 +14,13 @@ import (
 )
 
 func Test_commitHandler_GetCommitByName(t *testing.T) {
+	// Retrieve GitHub personal access token from environment variable
+	token := os.Getenv("SARTHAK_GITHUB_PERSONAL_ACCESS_TOKEN")
+
 	// Mock request data
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	req = mux.SetURLVars(req, map[string]string{"owner": "gcivil-nyu-org", "repo": "INT2-Monday-Spring2024-Team-1"})
-	req.URL.RawQuery = "message=update allowed hosts again"
+	req.URL.RawQuery = fmt.Sprintf("personalAccessToken=%s&branch=main&message=update", token)
 
 	// Create a ResponseRecorder to capture the response
 	rr := httptest.NewRecorder()
@@ -38,7 +43,7 @@ func Test_commitHandler_GetCommitByName(t *testing.T) {
 	}
 
 	// Check if the response contains the expected commit message
-	expectedMessage := "update allowed hosts again"
+	expectedMessage := "update"
 	foundIssue := false
 	for _, c := range resp {
 		if !strings.Contains(strings.ToLower(c.Commit.Message), strings.ToLower(expectedMessage)) {
@@ -52,10 +57,13 @@ func Test_commitHandler_GetCommitByName(t *testing.T) {
 }
 
 func Test_commitHandler_GetCommitByName_Branch_Does_Not_Exist(t *testing.T) {
+	// Retrieve GitHub personal access token from environment variable
+	token := os.Getenv("SARTHAK_GITHUB_PERSONAL_ACCESS_TOKEN")
+
 	// Mock request data
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	req = mux.SetURLVars(req, map[string]string{"owner": "nyuoss", "repo": "git-service"})
-	req.URL.RawQuery = "branch=testing"
+	req.URL.RawQuery = fmt.Sprintf("branch=testing&personalAccessToken=%s", token)
 
 	// Create a ResponseRecorder to capture the response
 	rr := httptest.NewRecorder()
@@ -88,10 +96,13 @@ func Test_commitHandler_CommitReleased_Branch_Does_Not_Exist(t *testing.T) {
 }
 
 func Test_commitHandler_CommitReleased_Commit_Does_Not_Exist(t *testing.T) {
+	// Retrieve GitHub personal access token from environment variable
+	token := os.Getenv("SARTHAK_GITHUB_PERSONAL_ACCESS_TOKEN")
+
 	// Mock request data
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	req = mux.SetURLVars(req, map[string]string{"owner": "nyuoss", "repo": "git-service"})
-	req.URL.RawQuery = "commit_id=1ed7hd7sce346c3487cd09eb0875f11efd9bb2dd&release_branch=main"
+	req.URL.RawQuery = fmt.Sprintf("commit_id=1ed7hd7sce346c3487cd09eb0875f11efd9bb2dd&release_branch=main&personalAccessToken=%s", token)
 
 	// Create a ResponseRecorder to capture the response
 	rr := httptest.NewRecorder()
@@ -114,10 +125,13 @@ func Test_commitHandler_CommitReleased_Commit_Does_Not_Exist(t *testing.T) {
 }
 
 func Test_commitHandler_CommitReleased_Commit_Exists(t *testing.T) {
+	// Retrieve GitHub personal access token from environment variable
+	token := os.Getenv("SARTHAK_GITHUB_PERSONAL_ACCESS_TOKEN")
+
 	// Mock request data
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	req = mux.SetURLVars(req, map[string]string{"owner": "nyuoss", "repo": "git-service"})
-	req.URL.RawQuery = "commit_id=ba7daee4b67892dfce920514a3a8fab7fa717fce&release_branch=main"
+	req.URL.RawQuery = fmt.Sprintf("commit_id=ba7daee4b67892dfce920514a3a8fab7fa717fce&release_branch=main&personalAccessToken=%s", token)
 
 	// Create a ResponseRecorder to capture the response
 	rr := httptest.NewRecorder()
