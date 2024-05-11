@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func Test_commitHandler_GetCommitByMessage(t *testing.T) {
+func Test_commitHandler_GetCommitByName(t *testing.T) {
 	// Mock request data
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	req = mux.SetURLVars(req, map[string]string{"owner": "gcivil-nyu-org", "repo": "INT2-Monday-Spring2024-Team-1"})
@@ -24,7 +24,7 @@ func Test_commitHandler_GetCommitByMessage(t *testing.T) {
 	h := &commitHandler{}
 
 	// Call the handler function with the mock request and response
-	h.GetCommitByMessage(rr, req)
+	h.GetCommitByName(rr, req)
 
 	// Check the status code of the response
 	if rr.Code != http.StatusOK {
@@ -48,6 +48,24 @@ func Test_commitHandler_GetCommitByMessage(t *testing.T) {
 	}
 	if foundIssue {
 		t.Errorf("Expected response to contain commit message %q, but it was not found", expectedMessage)
+	}
+}
+
+func Test_commitHandler_GetCommitByName_Branch_Does_Not_Exist(t *testing.T) {
+	// Mock request data
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req = mux.SetURLVars(req, map[string]string{"owner": "nyuoss", "repo": "git-service"})
+	req.URL.RawQuery = "branch=testing"
+
+	// Create a ResponseRecorder to capture the response
+	rr := httptest.NewRecorder()
+
+	// Create a mock commit handler
+	h := &commitHandler{}
+
+	h.GetCommitByName(rr, req)
+	if rr.Code != http.StatusBadRequest {
+		t.Errorf("Expected status code %d but got %d", http.StatusBadRequest, rr.Code)
 	}
 }
 

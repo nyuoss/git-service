@@ -61,10 +61,11 @@ type Author struct {
 	SiteAdmin         bool   `json:"site_admin"`
 }
 
-type GetCommitByMessageRequest struct {
+type GetCommitByNameRequest struct {
 	Owner         string
 	Repository    string
 	CommitMessage string
+	Branch        string
 }
 
 type CommitReleasedRequest struct {

@@ -15,7 +15,7 @@ import (
 type CommitHandler interface {
 	GetCommitsBefore(http.ResponseWriter, *http.Request)
 	GetCommitsAfter(http.ResponseWriter, *http.Request)
-	GetCommitByMessage(http.ResponseWriter, *http.Request)
+	GetCommitByName(http.ResponseWriter, *http.Request)
 	CommitReleased(http.ResponseWriter, *http.Request)
 }
 
@@ -35,17 +35,27 @@ func (h *commitHandler) GetCommitsAfter(w http.ResponseWriter, r *http.Request) 
 	// TODO
 }
 
-func (h *commitHandler) GetCommitByMessage(w http.ResponseWriter, r *http.Request) {
+func (h *commitHandler) GetCommitByName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// Get request data from query params
-	request, errMessage := GetCommitByMessageRequest(r)
+	request, errMessage := GetCommitByNameRequest(r)
 	if errMessage != "" {
 		http.Error(w, errMessage, http.StatusBadRequest)
 		return
 	}
 
-	baseUrl := fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?per_page=100&page=", request.Owner, request.Repository)
+	branchExists, err := checkIfBranchExists(request.Owner, request.Repository, request.Branch)
+	if err != nil {
+		http.Error(w, "Error checking if branch exists: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !branchExists {
+		http.Error(w, "Branch does not exist in the repository", http.StatusBadRequest)
+		return
+	}
+
+	baseUrl := fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?sha=%s&per_page=100&page=", request.Owner, request.Repository, request.Branch)
 	method := "GET"
 
 	req, err := http.NewRequest(method, baseUrl, nil)
