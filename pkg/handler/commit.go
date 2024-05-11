@@ -119,7 +119,6 @@ func (h *commitHandler) GetCommitsBefore(w http.ResponseWriter, r *http.Request)
 	_ = json.NewEncoder(w).Encode(response)
 }
 
-
 func (h *commitHandler) GetCommitsAfter(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	owner := vars["owner"]
