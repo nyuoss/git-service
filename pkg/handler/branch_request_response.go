@@ -75,6 +75,19 @@ type Branch struct {
 }
 
 type Commit struct {
-	SHA string `json:"sha"`
-	URL string `json:"url"`
+	SHA    string `json:"sha"`
+	URL    string `json:"url"`
+	Author Author `json:"author"`
+}
+
+type CommitDetails struct {
+	SHA    string `json:"sha"`
+	URL    string `json:"url"`
+	Commit Commit `json:"commit"`
+}
+
+type Author struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Date  string `json:"date"`
 }
