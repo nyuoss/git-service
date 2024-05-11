@@ -122,16 +122,20 @@ func (h *tagHandler) GetParentTagsByCommit(w http.ResponseWriter, r *http.Reques
 	repo := vars["repo"]
 
 	queryParams := r.URL.Query()
+
+	// Get the value of a specific query parameter
 	commitSha := queryParams.Get("commit")
 
 	client := resty.New()
 
-	// Get all tags from the repo
+	// get tags
 	var repoTags []Tag
+
 	apiURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/tags", owner, repo)
 	resp, err := client.R().SetResult(&repoTags).Get(apiURL)
+	fmt.Println(repoTags)
 	if err != nil {
-		http.Error(w, "Failed to fetch tags from the GitHub API", http.StatusInternalServerError)
+		http.Error(w, "Failed to fetch branches from the GitHub API", http.StatusInternalServerError)
 		return
 	}
 	if resp.StatusCode() != http.StatusOK {
@@ -139,14 +143,37 @@ func (h *tagHandler) GetParentTagsByCommit(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// Create a map to find parent tags
-	parentTags := make(map[string][]string)
-	for _, tag := range repoTags {
-		apiURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/compare/%s...%s", owner, repo, commitSha, tag.Commit.SHA)
-		var comparisonResult CompareResult
-		resp, err := client.R().SetResult(&comparisonResult).Get(apiURL)
+	// for fast search commit-sha --> tag
+	commitTagMap := make(map[string]string)
+	for _, t := range repoTags {
+		commitTagMap[t.Commit.SHA] = t.Name
+	}
+
+	// get branches
+	var repoBranches []Branch
+	apiURL = fmt.Sprintf("https://api.github.com/repos/%s/%s/branches", owner, repo)
+	resp, err = client.R().SetResult(&repoBranches).Get(apiURL)
+	if err != nil {
+		http.Error(w, "Failed to fetch branches from the GitHub API", http.StatusInternalServerError)
+		return
+	}
+	if resp.StatusCode() != http.StatusOK {
+		http.Error(w, "GitHub API returned status code: %d", resp.StatusCode())
+		return
+	}
+
+	// for each branch, get parent tags for the commit
+	parentTagsByBranch := make(map[string][]string)
+	for _, b := range repoBranches {
+		sha := b.Commit.SHA
+		var commits []Commit
+		apiURL = fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?sha=%s", owner, repo, sha)
+		resp, err = client.R().SetResult(&commits).Get(apiURL)
+		for _, c := range commits {
+			fmt.Println(c.SHA)
+		}
 		if err != nil {
-			http.Error(w, "Failed to compare commits from the GitHub API", http.StatusInternalServerError)
+			http.Error(w, "Failed to fetch branches from the GitHub API", http.StatusInternalServerError)
 			return
 		}
 		if resp.StatusCode() != http.StatusOK {
@@ -154,14 +181,27 @@ func (h *tagHandler) GetParentTagsByCommit(w http.ResponseWriter, r *http.Reques
 			return
 		}
 
-		// Check if the base commit (commitSha) is behind the tag commit, meaning commitSha is an ancestor of tag.Commit.SHA
-		if comparisonResult.Status == "behind" && comparisonResult.AheadBy > 0 {
-			parentTags[tag.Name] = append(parentTags[tag.Name], commitSha)
+		commitFound := false
+		parentTags := make([]string, 0)
+		for _, c := range commits {
+			if commitTagMap[c.SHA] != "" {
+				parentTags = append(parentTags, commitTagMap[c.SHA])
+			}
+			if strings.HasPrefix(c.SHA, commitSha) {
+				commitFound = true
+				break
+			}
 		}
+
+		if !commitFound {
+			parentTags = []string{}
+		}
+
+		parentTagsByBranch[b.Name] = parentTags
 	}
 
 	response := GetParentTagsByCommitResp{
-		Tags: parentTags,
+		Tags: parentTagsByBranch,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
