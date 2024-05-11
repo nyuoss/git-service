@@ -115,8 +115,7 @@ func (h *tagHandler) GetChildTagsByCommit(w http.ResponseWriter, r *http.Request
 	_ = json.NewEncoder(w).Encode(response)
 }
 
-func (h *tagHandler) GetParentTagsByCommit(w http.ResponseWriter, r *http.Request) {
-	// TODO
+func (h *tagHandler) GetChildTagsByCommit(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	owner := vars["owner"]
 	repo := vars["repo"]
