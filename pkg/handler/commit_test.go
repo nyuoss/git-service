@@ -120,3 +120,36 @@ func Test_commitHandler_CommitReleased_Commit_Exists(t *testing.T) {
 		t.Errorf("Expected true, but got false")
 	}
 }
+
+func TestGetJobsByCommit(t *testing.T) {
+	req, err := http.NewRequest("GET", "/v1/nyuoss/git-service/commit/getJobsByCommit?commitSHA=4c12ee9e449e8c9dd750783ab00f9be717f2575a", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	r := mux.NewRouter()
+	ch := &commitHandler{}
+	r.HandleFunc("/v1/{owner}/{repo}/commit/getJobsByCommit", ch.GetJobsByCommit).Methods("GET")
+
+	rr := httptest.NewRecorder()
+
+	r.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("Handler returned incorrect status code: got %v want %v",
+			status, http.StatusOK)
+	}
+
+	expectedContentType := "application/json"
+	if contentType := rr.Header().Get("Content-Type"); contentType != expectedContentType {
+		t.Errorf("Handler returned incorrect content type: got %v want %v", contentType, expectedContentType)
+	}
+
+	expected := `[{"url":"https://api.github.com/repos/nyuoss/git-service/statuses/4c12ee9e449e8c9dd750783ab00f9be717f2575a","avatar_url":"https://avatars.githubusercontent.com/in/302869?v=4","id":28952124332,"node_id":"SC_kwDOLf0zQs8AAAAGva5brA","state":"success","description":"","target_url":"https://app.circleci.com/pipelines/circleci/UBj8mMZkjsMXdSRaBgKksF/NefyNZWCQBF8Cojq6e6h7h/40/workflows/e26f6bd8-c521-40d5-9524-20d1b394d8ba","context":"ci/circleci: merge-check","created_at":"2024-05-05T18:06:42Z","updated_at":"2024-05-05T18:06:42Z"}]`
+	got := strings.TrimSpace(rr.Body.String())
+
+	if got != expected {
+		t.Errorf("Handler returned unexpected body: got %v want %v",
+			rr.Body.String(), expected)
+	}
+}
