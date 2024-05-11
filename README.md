@@ -35,13 +35,17 @@ It is hard for developers to track branches and tags in GitHub. Especially in an
 $ tree
 .
 |____go.mod         # dependencies
-|____LICENSE		
+|____LICENSE
+|____ git_functions	# Git-Service Server Component
 |____Makefile       # make test, fmt….
 |____README.md
 |____.gitignore
 |____.circleci	    # CI configuration
 |____main.go	    # main function
 |____pkg            # Components
+|   ├── handler     # Server Handler Components
+|   ├── model       # Github-API defined Objects
+|   └── swagger-ui  # Swagger File and Frontend
 |____.golangci.yml  # golangci-lint Configuration
 ```
 
