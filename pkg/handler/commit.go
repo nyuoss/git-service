@@ -222,8 +222,9 @@ func (h *commitHandler) GetJobsByCommit(w http.ResponseWriter, r *http.Request) 
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(statusesJSON)
+	if _, err := w.Write(statusesJSON); err != nil {
+		http.Error(w, fmt.Sprintf("Error writing response: %v", err), http.StatusInternalServerError)
+	}
 }
 
 func GetCommitStatuses(owner, repo, commitSHA string) ([]Status, error) {
