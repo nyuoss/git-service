@@ -153,3 +153,47 @@ func TestGetJobsByCommit(t *testing.T) {
 			rr.Body.String(), expected)
 	}
 }
+
+func TestGetCommitsAfter(t *testing.T) {
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req = mux.SetURLVars(req, map[string]string{"owner": "aryamanrishabh", "repo": "lms-fe"})
+	req.URL.RawQuery = "commit=b9e9d948361d97c79bcf0b421d02474e4fda375a"
+	
+
+	rr := httptest.NewRecorder()
+
+	h := &commitHandler{}
+
+	h.GetCommitsAfter(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Errorf("Expected status code %d but got %d", http.StatusOK, rr.Code)
+	}
+
+	var resp map[string]map[string][]string
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Errorf("Error decoding response body: %v", err)
+	}
+
+	expectedContentType := "application/json"
+	if contentType := rr.Header().Get("Content-Type"); contentType != expectedContentType {
+		t.Errorf("Handler returned incorrect content type: got %v want %v", contentType, expectedContentType)
+	}
+
+	expectedCommit := "42944b800458d6bf85f77c5b6728a1127c4c72d6"
+	foundIssue := false
+	for _, commitIDs := range resp["commits"] {
+		for _, commitID := range commitIDs {
+			if commitID == expectedCommit {
+				foundIssue = false
+				break
+			} else {
+				foundIssue = true
+			}
+		}
+	}
+
+	if foundIssue {
+		t.Errorf("Expected the response to contain commit %s, but it was not found", expectedCommit)
+	}
+}
