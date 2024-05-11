@@ -43,7 +43,6 @@ func TestGetActiveBranches(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	req = mux.SetURLVars(req, map[string]string{"owner": "aryamanrishabh", "repo": "metricsjs"})
 	req.URL.RawQuery = "unit=h&number=6000"
-	
 
 	rr := httptest.NewRecorder()
 
@@ -72,7 +71,7 @@ func TestGetActiveBranches(t *testing.T) {
 			foundIssue = false
 			break
 		} else {
-			foundIssue =  true
+			foundIssue = true
 		}
 	}
 

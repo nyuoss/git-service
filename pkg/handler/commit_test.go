@@ -158,7 +158,6 @@ func TestGetCommitsAfter(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	req = mux.SetURLVars(req, map[string]string{"owner": "aryamanrishabh", "repo": "lms-fe"})
 	req.URL.RawQuery = "commit=b9e9d948361d97c79bcf0b421d02474e4fda375a"
-	
 
 	rr := httptest.NewRecorder()
 
