@@ -163,7 +163,7 @@ func (h *tagHandler) GetParentTagsByCommit(w http.ResponseWriter, r *http.Reques
 	}
 
 	// for each branch, get parent tags for the commit
-	parentTagsByBranch := make(map[string][]string)
+	parentTagsByBranch := make(map[string]string)
     for _, b := range repoBranches {
         sha := b.Commit.SHA
         var commits []Commit
