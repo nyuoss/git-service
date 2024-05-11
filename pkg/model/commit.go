@@ -77,3 +77,8 @@ type CommitReleasedRequest struct {
 type CommitReleasedResponse struct {
 	CommitReleased bool
 }
+type GetCommitByDescriptionRequest struct {
+	Owner       string `json:"owner"`
+	Repository  string `json:"repository"`
+	Description string `json:"description"`
+}

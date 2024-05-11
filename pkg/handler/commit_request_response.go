@@ -162,3 +162,33 @@ func GetCommitReleasedRequest(r *http.Request) (req model.CommitReleasedRequest,
 	}
 	return
 }
+
+func GetCommitByDescriptionRequest(r *http.Request) (req model.GetCommitByDescriptionRequest, errMessage string) {
+	vars := mux.Vars(r)
+	queryParams := r.URL.Query()
+
+	owner := vars["owner"]
+	if len(owner) == 0 {
+		errMessage = "Owner cannot be empty"
+		return
+	}
+
+	repo := vars["repo"]
+	if len(repo) == 0 {
+		errMessage = "Repository cannot be empty"
+		return
+	}
+
+	description := queryParams.Get("description")
+	if len(description) == 0 {
+		errMessage = "Description cannot be empty"
+		return
+	}
+
+	req = model.GetCommitByDescriptionRequest{
+		Owner:       owner,
+		Repository:  repo,
+		Description: description,
+	}
+	return
+}

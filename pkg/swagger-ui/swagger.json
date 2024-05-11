@@ -91,17 +91,17 @@
         }
       }
     },
-    "/{owner}/{repo}/commit/getCommitByMessage": {
+    "/{owner}/{repo}/commit/getCommitByDescription": {
       "get": {
         "tags": ["commit"],
-        "summary": "Accepts a message about commit. Provides commit id and name.",
-        "operationId": "getCommitByMessage",
+        "summary": "Accepts a description of a commit. Provides commit id and name.",
+        "operationId": "getCommitByDescription",
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "Message",
-            "description": "Message",
-            "name": "message",
+            "x-go-name": "Description",
+            "description": "Description of the commit",
+            "name": "description",
             "in": "query"
           },
           {
@@ -403,7 +403,7 @@
       },
       "x-go-package": "git-service/pkg/handler"
     },
-    "GetCommitByMessageResp": {
+    "GetCommitByDescriptionResp": {
       "type": "object",
       "x-go-package": "git-service/pkg/handler"
     },
@@ -497,7 +497,7 @@
     "GetCommitsBeforeResponse": {
       "description": "",
       "schema": {
-        "$ref": "#/definitions/GetCommitByMessageResp"
+        "$ref": "#/definitions/GetCommitByDescriptionResp"
       }
     },
     "GetJobsByCommitResponse": {
@@ -510,6 +510,12 @@
       "description": "",
       "schema": {
         "$ref": "#/definitions/GetParentTagsByCommitResp"
+      }
+    },
+    "GetCommitByDescriptionResponse": {
+      "description": "",
+      "schema": {
+        "$ref": "#/definitions/GetCommitByDescriptionResp"
       }
     }
   }
