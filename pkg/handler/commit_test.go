@@ -20,7 +20,7 @@ func Test_commitHandler_GetCommitByName(t *testing.T) {
 	// Mock request data
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	req = mux.SetURLVars(req, map[string]string{"owner": "gcivil-nyu-org", "repo": "INT2-Monday-Spring2024-Team-1"})
-	req.URL.RawQuery = fmt.Sprintf("personalAccessToken=%s&branch=main&message=update", token)
+	req.URL.RawQuery = fmt.Sprintf("personalAccessToken=%s&branch=master&message=update", token)
 
 	// Create a ResponseRecorder to capture the response
 	rr := httptest.NewRecorder()
