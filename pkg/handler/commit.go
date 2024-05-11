@@ -40,7 +40,89 @@ func AddhttpAuthRequestHeaders(req *http.Request, personalAccessToken string) {
 }
 
 func (h *commitHandler) GetCommitsBefore(w http.ResponseWriter, r *http.Request) {
-	// TODO
+	vars := mux.Vars(r)
+	owner := vars["owner"]
+	repo := vars["repo"]
+
+	queryParams := r.URL.Query()
+
+	commitID := queryParams.Get("commit")
+	number := queryParams.Get("number")
+
+	commit, err := getCommit(owner, repo, commitID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	commitDateTime := commit.Author.Date
+	datetime, err := time.Parse(time.RFC3339, commitDateTime)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	client := resty.New()
+	var branches []Branch
+
+	apiURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/branches", owner, repo)
+	resp, err := client.R().SetResult(&branches).Get(apiURL)
+	if err != nil {
+		http.Error(w, "Failed to fetch branches from the GitHub API", http.StatusInternalServerError)
+		return
+	}
+	if resp.StatusCode() != http.StatusOK {
+		http.Error(w, fmt.Sprintf("GitHub API returned status code: %d", resp.StatusCode()), http.StatusInternalServerError)
+		return
+	}
+
+	commitsByBranch := make(map[string][]string)
+	deletions := 0
+	for _, branch := range branches {
+		commits, err := getBranchCommits(owner, repo, branch.Name)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		var filteredCommits []string
+		for _, commit := range commits {
+			commitTime, err := time.Parse(time.RFC3339, commit.Commit.Author.Date)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			if commitTime.Before(datetime) {
+				filteredCommits = append(filteredCommits, commit.SHA)
+				deletions++
+			}
+
+			if number != "" {
+				num, err := strconv.Atoi(number)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+
+				if num == deletions {
+					break
+				}
+			}
+		}
+
+		if len(filteredCommits) > 0 {
+			commitsByBranch[branch.Name] = filteredCommits
+		}
+	}
+
+	response := GetCommitsBeforeResp{
+		Commits: commitsByBranch,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 func (h *commitHandler) GetCommitsAfter(w http.ResponseWriter, r *http.Request) {
