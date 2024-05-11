@@ -72,9 +72,10 @@ func TestGetActiveBranches(t *testing.T) {
 
 func Test_checkIfBranchExists(t *testing.T) {
 	type args struct {
-		owner  string
-		repo   string
-		branch string
+		owner               string
+		repo                string
+		branch              string
+		personalAccessToken string
 	}
 	tests := []struct {
 		name       string
@@ -105,7 +106,7 @@ func Test_checkIfBranchExists(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotExists, err := checkIfBranchExists(tt.args.owner, tt.args.repo, tt.args.branch)
+			gotExists, err := checkIfBranchExists(tt.args.owner, tt.args.repo, tt.args.branch, tt.args.personalAccessToken)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("checkIfBranchExists() error = %v, wantErr %v", err, tt.wantErr)
 				return

@@ -124,11 +124,14 @@ func GetCommitByNameRequest(r *http.Request) (req model.GetCommitByNameRequest, 
 		return
 	}
 
+	personalAccessToken := queryParams.Get("personalAccessToken")
+
 	req = model.GetCommitByNameRequest{
-		Owner:         owner,
-		Repository:    repo,
-		CommitMessage: message,
-		Branch:        branch,
+		Owner:               owner,
+		Repository:          repo,
+		CommitMessage:       message,
+		Branch:              branch,
+		PersonalAccessToken: personalAccessToken,
 	}
 	return
 }
@@ -161,11 +164,14 @@ func GetCommitReleasedRequest(r *http.Request) (req model.CommitReleasedRequest,
 		return
 	}
 
+	personalAccessToken := queryParams.Get("personalAccessToken")
+
 	req = model.CommitReleasedRequest{
-		Owner:         owner,
-		Repository:    repo,
-		CommitId:      commit_id,
-		ReleaseBranch: release_branch,
+		Owner:               owner,
+		Repository:          repo,
+		CommitId:            commit_id,
+		ReleaseBranch:       release_branch,
+		PersonalAccessToken: personalAccessToken,
 	}
 	return
 }
