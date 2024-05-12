@@ -367,39 +367,38 @@ func (h *commitHandler) GetCommitByAuthor(w http.ResponseWriter, r *http.Request
 
 	request, errMessage := GetCommitByAuthorRequest(r)
 	if errMessage != "" {
-		http.Error(w, errMessage, http.StatusBadRequest)
+		http.Error(w, `{"error":"`+errMessage+`"}`, http.StatusBadRequest)
 		return
 	}
 
 	baseUrl := fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?author=%s&per_page=100&page=", request.Owner, request.Repository, url.QueryEscape(request.Author))
-	method := "GET"
-
-	req, err := http.NewRequest(method, baseUrl, nil)
-	if err != nil {
-		http.Error(w, "Error generating new request: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
 	client := &http.Client{}
 	var resp []model.CommitData
 
 	for page_number := 1; ; page_number++ {
-		req.URL, err = url.Parse(baseUrl + strconv.Itoa(page_number))
+		fullUrl := baseUrl + strconv.Itoa(page_number)
+		req, err := http.NewRequest(http.MethodGet, fullUrl, nil)
 		if err != nil {
-			http.Error(w, "Error parsing URL: "+err.Error(), http.StatusInternalServerError)
+			http.Error(w, `{"error":"Error generating new request: `+err.Error()+`"}`, http.StatusInternalServerError)
 			return
 		}
 
 		res, err := client.Do(req)
 		if err != nil {
-			http.Error(w, "Error making request to GitHub: "+err.Error(), http.StatusInternalServerError)
+			http.Error(w, `{"error":"Error making request to GitHub: `+err.Error()+`"}`, http.StatusInternalServerError)
 			return
 		}
 		defer res.Body.Close()
 
+		if res.StatusCode != http.StatusOK {
+			body, _ := io.ReadAll(res.Body)
+			http.Error(w, fmt.Sprintf(`{"error":"GitHub API returned status %d: %s"}`, res.StatusCode, string(body)), res.StatusCode)
+			return
+		}
+
 		var commits []model.CommitData
 		if err := json.NewDecoder(res.Body).Decode(&commits); err != nil {
-			http.Error(w, "Error unmarshalling JSON: "+err.Error(), http.StatusInternalServerError)
+			http.Error(w, `{"error":"Error unmarshalling JSON: `+err.Error()+`"}`, http.StatusInternalServerError)
 			return
 		}
 
@@ -411,7 +410,7 @@ func (h *commitHandler) GetCommitByAuthor(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		http.Error(w, "Error encoding response to JSON: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, `{"error":"Error encoding response to JSON: `+err.Error()+`"}`, http.StatusInternalServerError)
 		return
 	}
 }
