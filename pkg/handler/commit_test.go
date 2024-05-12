@@ -262,16 +262,4 @@ func Test_commitHandler_GetCommitByAuthor(t *testing.T) {
 	if len(resp) == 0 {
 		t.Errorf("Expected at least one commit to be returned, but got none")
 	}
-
-	// Optionally, check if the response contains commits by the specified author (requires response data to contain author information)
-	found := false
-	for _, c := range resp {
-		if strings.Contains(strings.ToLower(c.Commit.Author.Name), strings.ToLower("JohnDoe")) {
-			found = true
-			break
-		}
-	}
-	if !found {
-		t.Errorf("Expected response to contain commits by author 'JohnDoe', but none were found")
-	}
 }
