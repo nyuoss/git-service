@@ -389,6 +389,55 @@
           }
         }
       }
+    },
+    "/{owner}/{repo}/commit/getCommitByAuthor": {
+      "get": {
+        "tags": ["commit"],
+        "summary": "Retrieves commits by a specified author's exact name.",
+        "operationId": "getCommitByAuthor",
+        "parameters": [
+          {
+            "name": "author",
+            "in": "query",
+            "required": true,
+            "description": "Exact name of the author.",
+            "type": "string"
+          },
+          {
+            "name": "owner",
+            "in": "path",
+            "required": true,
+            "description": "Owner of the repository",
+            "type": "string"
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "required": true,
+            "description": "Repository name",
+            "type": "string"
+          },
+          {
+            "name": "personalAccessToken",
+            "in": "query",
+            "description": "Personal access token for API authentication",
+            "type": "string",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of commits by author",
+            "$ref": "#/definitions/GetCommitByAuthorResp"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "No commits found for the specified author"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -523,7 +572,29 @@
         }
       },
       "x-go-package": "git-service/pkg/handler"
-    }
+    },
+    "GetCommitByAuthorResp": {
+      "type": "object",
+      "properties": {
+        "commits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "sha": {
+                "type": "string",
+                "description": "SHA of the commit"
+              },
+              "message": {
+                "type": "string",
+                "description": "Commit message"
+              }
+            }
+          },
+          "description": "List of commits by the author specified by exact name"
+        }
+      }
+    }    
   },
   "responses": {
     "GetActiveBranchesResponse": {
@@ -567,6 +638,12 @@
       "schema": {
         "$ref": "#/definitions/GetParentTagsByCommitResp"
       }
-    }
+    },
+    "GetCommitByAuthorResponse": {
+      "description": "Successful retrieval of commits by author",
+      "schema": {
+        "$ref": "#/definitions/GetCommitByAuthorResp"
+      }
+    }    
   }
 }

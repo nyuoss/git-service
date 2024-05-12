@@ -193,3 +193,59 @@ func GetCommitReleasedRequest(r *http.Request) (req model.CommitReleasedRequest,
 	}
 	return
 }
+
+// swagger:parameters getCommitByAuthor
+type GetCommitByAuthorReq struct {
+	// Regular expression to match the author's name
+	// in: query
+	AuthorRegex string `json:"authorRegex"`
+}
+
+type GetCommitByAuthorReqWrapper struct {
+	// in:body
+	Body GetCommitByAuthorReq `json:"body"`
+}
+
+type GetCommitByAuthorResp struct {
+	// Map of commit IDs to commit messages
+	Commits map[string]string `json:"commits"`
+}
+
+// swagger:response GetCommitByAuthorResponse
+type GetCommitByAuthorRespWrapper struct {
+	// in:body
+	Body GetCommitByAuthorResp `json:"body"`
+}
+
+func GetCommitByAuthorRequest(r *http.Request) (req model.GetCommitByAuthorRequest, errMessage string) {
+	vars := mux.Vars(r)
+	queryParams := r.URL.Query()
+
+	owner := vars["owner"]
+	if owner == "" {
+		errMessage = "Owner cannot be empty"
+		return
+	}
+
+	repo := vars["repo"]
+	if repo == "" {
+		errMessage = "Repository cannot be empty"
+		return
+	}
+
+	author := queryParams.Get("author")
+	if author == "" {
+		errMessage = "Author name cannot be empty"
+		return
+	}
+
+	personalAccessToken := queryParams.Get("personalAccessToken") // Optional
+
+	req = model.GetCommitByAuthorRequest{
+		Owner:               owner,
+		Repository:          repo,
+		Author:              author,
+		PersonalAccessToken: personalAccessToken,
+	}
+	return
+}

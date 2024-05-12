@@ -6,6 +6,7 @@ import (
 	"git-service/pkg/model"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -23,6 +24,7 @@ type CommitHandler interface {
 	GetCommitByName(http.ResponseWriter, *http.Request)
 	CommitReleased(http.ResponseWriter, *http.Request)
 	GetJobsByCommit(http.ResponseWriter, *http.Request)
+	GetCommitByAuthor(http.ResponseWriter, *http.Request)
 }
 
 var _ CommitHandler = &commitHandler{}
@@ -358,4 +360,58 @@ func GetCommitStatuses(owner, repo, commitSHA string) ([]Status, error) {
 	}
 
 	return statusResp.Statuses, nil
+}
+
+func (h *commitHandler) GetCommitByAuthor(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	request, errMessage := GetCommitByAuthorRequest(r)
+	if errMessage != "" {
+		http.Error(w, errMessage, http.StatusBadRequest)
+		return
+	}
+
+	baseUrl := fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?author=%s&per_page=100&page=", request.Owner, request.Repository, url.QueryEscape(request.Author))
+	method := "GET"
+
+	req, err := http.NewRequest(method, baseUrl, nil)
+	if err != nil {
+		http.Error(w, "Error generating new request: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	client := &http.Client{}
+	var resp []model.CommitData
+
+	for page_number := 1; ; page_number++ {
+		req.URL, err = url.Parse(baseUrl + strconv.Itoa(page_number))
+		if err != nil {
+			http.Error(w, "Error parsing URL: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		res, err := client.Do(req)
+		if err != nil {
+			http.Error(w, "Error making request to GitHub: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer res.Body.Close()
+
+		var commits []model.CommitData
+		if err := json.NewDecoder(res.Body).Decode(&commits); err != nil {
+			http.Error(w, "Error unmarshalling JSON: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if len(commits) == 0 {
+			break
+		}
+
+		resp = append(resp, commits...)
+	}
+
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		http.Error(w, "Error encoding response to JSON: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

@@ -80,3 +80,10 @@ type CommitReleasedRequest struct {
 type CommitReleasedResponse struct {
 	CommitReleased bool
 }
+
+type GetCommitByAuthorRequest struct {
+	Owner               string // Owner of the repository
+	Repository          string // Repository name
+	Author              string // Exact name of the author
+	PersonalAccessToken string // Optional: Personal access token for API authentication
+}
