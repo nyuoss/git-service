@@ -230,35 +230,31 @@ func TestGetCommitsAfter(t *testing.T) {
 }
 
 func Test_commitHandler_GetCommitByAuthor(t *testing.T) {
-	// Retrieve GitHub personal access token from environment variable
-	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	router := mux.NewRouter()
+	ch := &commitHandler{}
+	router.HandleFunc("/{owner}/{repo}/commits/by-author", ch.GetCommitByAuthor).Methods("GET")
 
-	// Mock request data
-	req, _ := http.NewRequest(http.MethodGet, "/", nil)
-	req = mux.SetURLVars(req, map[string]string{"owner": "nyuoss", "repo": "git-service"})
-	req.URL.RawQuery = fmt.Sprintf("author=JohnDoe&personalAccessToken=%s", token)
+	ts := httptest.NewServer(router)
+	defer ts.Close()
 
-	// Create a ResponseRecorder to capture the response
-	rr := httptest.NewRecorder()
+	url := fmt.Sprintf("%s/exampleOwner/exampleRepo/commits/by-author?author=JohnDoe&personalAccessToken=testToken", ts.URL)
+	req, _ := http.NewRequest("GET", url, nil)
 
-	// Create a mock commit handler
-	h := &commitHandler{}
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("Failed to send request: %v", err)
+	}
+	defer res.Body.Close()
 
-	// Call the handler function with the mock request and response
-	h.GetCommitByAuthor(rr, req)
-
-	// Check the status code of the response
-	if rr.Code != http.StatusOK {
-		t.Errorf("Expected status code %d but got %d", http.StatusOK, rr.Code)
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code %d but got %d", http.StatusOK, res.StatusCode)
 	}
 
-	// Decode the response body into a slice of CommitData
 	var resp []model.CommitData
-	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
-		t.Errorf("Error decoding response body: %v", err)
+	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
+		t.Fatalf("Error decoding response: %v", err)
 	}
 
-	// Check if the response contains any commits
 	if len(resp) == 0 {
 		t.Errorf("Expected at least one commit to be returned, but got none")
 	}
