@@ -121,11 +121,14 @@ func Test_commitHandler_CommitReleased_Commit_Exists(t *testing.T) {
 	}
 }
 
-func Test_commitHandler_GetCommitByDescription(t *testing.T) {
+func Test_commitHandler_GetCommitByAuthor(t *testing.T) {
 	// Mock request data
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	req = mux.SetURLVars(req, map[string]string{"owner": "nyuoss", "repo": "git-service"})
-	req.URL.RawQuery = "description=update README"
+
+	// Assuming the token is required and you want to include it
+	token := "your_access_token_here" // Set a valid token for testing
+	req.URL.RawQuery = "author=exampleUser&token=" + token
 
 	// Create a ResponseRecorder to capture the response
 	rr := httptest.NewRecorder()
@@ -134,7 +137,7 @@ func Test_commitHandler_GetCommitByDescription(t *testing.T) {
 	h := &commitHandler{}
 
 	// Call the handler function with the mock request and response
-	h.GetCommitByDescription(rr, req)
+	h.GetCommitByAuthor(rr, req)
 
 	// Check the status code of the response
 	if rr.Code != http.StatusOK {
@@ -147,16 +150,17 @@ func Test_commitHandler_GetCommitByDescription(t *testing.T) {
 		t.Errorf("Error decoding response body: %v", err)
 	}
 
-	// Check if the response contains the expected description
-	expectedDescription := "update README"
-	foundIssue := false
+	// Check if the response contains commits by the expected author
+	// This part assumes that the GitHub username "exampleUser" should match the author of some commits
+	expectedAuthor := "exampleUser"
+	found := false
 	for _, c := range resp {
-		if !strings.Contains(strings.ToLower(c.Commit.Message), strings.ToLower(expectedDescription)) {
-			foundIssue = true
+		if c.Author.Login == expectedAuthor {
+			found = true
 			break
 		}
 	}
-	if foundIssue {
-		t.Errorf("Expected response to contain commit description %q, but it was not found", expectedDescription)
+	if !found {
+		t.Errorf("Expected at least one commit from author %q, but none were found", expectedAuthor)
 	}
 }

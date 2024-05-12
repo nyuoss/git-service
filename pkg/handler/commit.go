@@ -17,7 +17,7 @@ type CommitHandler interface {
 	GetCommitsAfter(http.ResponseWriter, *http.Request)
 	GetCommitByMessage(http.ResponseWriter, *http.Request)
 	CommitReleased(http.ResponseWriter, *http.Request)
-	GetCommitByDescription(http.ResponseWriter, *http.Request)
+	GetCommitByAuthor(http.ResponseWriter, *http.Request)
 }
 
 var _ CommitHandler = &commitHandler{}
@@ -197,17 +197,18 @@ func getCommitsByPageNumber(baseUrl string, page_number int, req *http.Request, 
 	return
 }
 
-func (h *commitHandler) GetCommitByDescription(w http.ResponseWriter, r *http.Request) {
+func (h *commitHandler) GetCommitByAuthor(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// Get request data from query params
-	request, errMessage := GetCommitByDescriptionRequest(r)
+	request, errMessage := GetCommitByAuthorRequest(r)
 	if errMessage != "" {
 		http.Error(w, errMessage, http.StatusBadRequest)
 		return
 	}
 
-	baseUrl := fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?per_page=100&page=", request.Owner, request.Repository)
+	// Construct the GitHub API URL for fetching commits by author
+	baseUrl := fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?author=%s&per_page=100&page=", request.Owner, request.Repository, urlpkg.QueryEscape(request.Author))
 	method := "GET"
 
 	req, err := http.NewRequest(method, baseUrl, nil)
@@ -216,8 +217,14 @@ func (h *commitHandler) GetCommitByDescription(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	// Add authorization header if a personal access token is provided
+	if request.PersonalAccessToken != "" {
+		req.Header.Add("Authorization", "token "+request.PersonalAccessToken)
+	}
+
 	resp := []model.CommitData{}
 
+	// Iterate over pages of results
 	for page_number := 1; ; page_number++ {
 		url := baseUrl + strconv.Itoa(page_number)
 		u, err := urlpkg.Parse(url)
@@ -226,9 +233,6 @@ func (h *commitHandler) GetCommitByDescription(w http.ResponseWriter, r *http.Re
 			return
 		}
 		req.URL = u
-
-		// Define a variable of type []Commit to store the data
-		var commits []model.CommitData
 
 		client := &http.Client{}
 		res, err := client.Do(req)
@@ -244,7 +248,7 @@ func (h *commitHandler) GetCommitByDescription(w http.ResponseWriter, r *http.Re
 			return
 		}
 
-		// Unmarshal JSON data into commits variable
+		var commits []model.CommitData
 		err = json.Unmarshal(body, &commits)
 		if err != nil {
 			http.Error(w, "Error unmarshalling JSON: "+err.Error(), http.StatusInternalServerError)
@@ -252,15 +256,12 @@ func (h *commitHandler) GetCommitByDescription(w http.ResponseWriter, r *http.Re
 		}
 
 		if len(commits) == 0 {
-			break
+			break // Exit the loop if no more commits are found
 		}
 
-		for _, c := range commits {
-			if strings.Contains(strings.ToLower(c.Commit.Message), strings.ToLower(request.Description)) {
-				resp = append(resp, c)
-			}
-		}
+		resp = append(resp, commits...) // Append found commits to response
 	}
 
+	// Send the final list of commits as JSON
 	_ = json.NewEncoder(w).Encode(resp)
 }

@@ -163,32 +163,21 @@ func GetCommitReleasedRequest(r *http.Request) (req model.CommitReleasedRequest,
 	return
 }
 
-func GetCommitByDescriptionRequest(r *http.Request) (req model.GetCommitByDescriptionRequest, errMessage string) {
+func GetCommitByAuthorRequest(r *http.Request) (req model.GetCommitByAuthorRequest, errMessage string) {
 	vars := mux.Vars(r)
-	queryParams := r.URL.Query()
+	author := r.URL.Query().Get("author")
+	token := r.URL.Query().Get("token") // Personal Access Token is optional
 
-	owner := vars["owner"]
-	if len(owner) == 0 {
-		errMessage = "Owner cannot be empty"
+	if author == "" {
+		errMessage = "Author parameter is required"
 		return
 	}
 
-	repo := vars["repo"]
-	if len(repo) == 0 {
-		errMessage = "Repository cannot be empty"
-		return
-	}
-
-	description := queryParams.Get("description")
-	if len(description) == 0 {
-		errMessage = "Description cannot be empty"
-		return
-	}
-
-	req = model.GetCommitByDescriptionRequest{
-		Owner:       owner,
-		Repository:  repo,
-		Description: description,
+	req = model.GetCommitByAuthorRequest{
+		Owner:               vars["owner"],
+		Repository:          vars["repo"],
+		Author:              author,
+		PersonalAccessToken: token, // This can be an empty string if not provided
 	}
 	return
 }

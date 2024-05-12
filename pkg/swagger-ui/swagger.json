@@ -91,43 +91,6 @@
         }
       }
     },
-    "/{owner}/{repo}/commit/getCommitByDescription": {
-      "get": {
-        "tags": ["commit"],
-        "summary": "Accepts a description of a commit. Provides commit id and name.",
-        "operationId": "getCommitByDescription",
-        "parameters": [
-          {
-            "type": "string",
-            "x-go-name": "Description",
-            "description": "Description of the commit",
-            "name": "description",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "Owner",
-            "description": "Owner of the repository",
-            "name": "owner",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "x-go-name": "Repo",
-            "description": "Repository name",
-            "name": "repo",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/responses/GetCommitByMessageResponse"
-          }
-        }
-      }
-    },
     "/{owner}/{repo}/commit/getCommitsAfter": {
       "get": {
         "tags": ["commit"],
@@ -358,7 +321,61 @@
           }
         }
       }
-    }
+    },
+    "/{owner}/{repo}/commit/getCommitByAuthor": {
+      "get": {
+        "tags": ["commit"],
+        "summary": "Provides commits by the specified author in the repository.",
+        "operationId": "getCommitByAuthor",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Owner of the repository"
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Repository name"
+          },
+          {
+            "name": "author",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Author username to filter commits by"
+          },
+          {
+            "name": "personalAccessToken",
+            "in": "query",
+            "type": "string",
+            "description": "Personal Access Token for authorization if needed",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetCommitByAuthorResponse"
+          },
+          "400": {
+            "description": "Bad request. Possible issues could be missing required parameters."
+          },
+          "401": {
+            "description": "Unauthorized. Provided Personal Access Token is invalid or expired."
+          },
+          "404": {
+            "description": "Not found. The specified owner, repository, or author could not be found."
+          },
+          "500": {
+            "description": "Internal server error. A problem occurred in our service."
+          }
+        }
+      }
+    }    
   },
   "definitions": {
     "GetActiveBranchesResp": {
@@ -401,10 +418,6 @@
           }
         }
       },
-      "x-go-package": "git-service/pkg/handler"
-    },
-    "GetCommitByDescriptionResp": {
-      "type": "object",
       "x-go-package": "git-service/pkg/handler"
     },
     "GetCommitsAfterResp": {
@@ -467,7 +480,21 @@
         }
       },
       "x-go-package": "git-service/pkg/handler"
-    }
+    },
+    "GetCommitByAuthorResp": {
+      "type": "object",
+      "properties": {
+        "commits": {
+          "description": "Map of commit IDs to their corresponding commit messages, filtered by the specified author.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "description": "Commit message associated with the commit id"
+          }
+        }
+      },
+      "x-go-package": "git-service/pkg/handler"
+    }    
   },
   "responses": {
     "GetActiveBranchesResponse": {
@@ -497,7 +524,7 @@
     "GetCommitsBeforeResponse": {
       "description": "",
       "schema": {
-        "$ref": "#/definitions/GetCommitByDescriptionResp"
+        "$ref": "#/definitions/GetCommitsBeforeResp"
       }
     },
     "GetJobsByCommitResponse": {
@@ -512,11 +539,11 @@
         "$ref": "#/definitions/GetParentTagsByCommitResp"
       }
     },
-    "GetCommitByDescriptionResponse": {
-      "description": "",
+    "GetCommitByAuthorResponse": {
+      "description": "Successful retrieval of commits authored by the specified user.",
       "schema": {
-        "$ref": "#/definitions/GetCommitByDescriptionResp"
+        "$ref": "#/definitions/GetCommitByAuthorResp"
       }
-    }
+    }     
   }
 }

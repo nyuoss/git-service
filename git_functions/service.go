@@ -80,7 +80,7 @@ func (s *gitServer) HandleCommits() {
 		Methods(http.MethodGet)
 
 	s.r.HandleFunc(
-		CommitPrefix+"/getCommitByDescription", s.ch.GetCommitByDescription).
+		CommitPrefix+"/getCommitByAuthor", s.ch.GetCommitByAuthor).
 		Methods(http.MethodGet)
 }
 
