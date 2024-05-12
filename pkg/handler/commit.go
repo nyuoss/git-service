@@ -365,52 +365,47 @@ func GetCommitStatuses(owner, repo, commitSHA string) ([]Status, error) {
 func (h *commitHandler) GetCommitByAuthor(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	// Get request data from query params
 	request, errMessage := GetCommitByAuthorRequest(r)
 	if errMessage != "" {
-		http.Error(w, `{"error":"`+errMessage+`"}`, http.StatusBadRequest)
+		http.Error(w, errMessage, http.StatusBadRequest)
 		return
 	}
 
 	baseUrl := fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?author=%s&per_page=100&page=", request.Owner, request.Repository, url.QueryEscape(request.Author))
+	method := "GET"
+
+	req, err := http.NewRequest(method, baseUrl, nil)
+	if err != nil {
+		http.Error(w, "Error generating new request: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	AddhttpAuthRequestHeaders(req, request.PersonalAccessToken)
+
+	resp := []model.CommitData{}
+	var commits []model.CommitData
 	client := &http.Client{}
-	var resp []model.CommitData
 
 	for page_number := 1; ; page_number++ {
 		fullUrl := baseUrl + strconv.Itoa(page_number)
-		req, err := http.NewRequest(http.MethodGet, fullUrl, nil)
-		if err != nil {
-			http.Error(w, `{"error":"Error generating new request: `+err.Error()+`"}`, http.StatusInternalServerError)
-			return
-		}
+		req.URL, _ = url.Parse(fullUrl) // Update the page number for each request
 
-		res, err := client.Do(req)
-		if err != nil {
-			http.Error(w, `{"error":"Error making request to GitHub: `+err.Error()+`"}`, http.StatusInternalServerError)
-			return
-		}
-		defer res.Body.Close()
-
-		if res.StatusCode != http.StatusOK {
-			body, _ := io.ReadAll(res.Body)
-			http.Error(w, fmt.Sprintf(`{"error":"GitHub API returned status %d: %s"}`, res.StatusCode, string(body)), res.StatusCode)
-			return
-		}
-
-		var commits []model.CommitData
-		if err := json.NewDecoder(res.Body).Decode(&commits); err != nil {
-			http.Error(w, `{"error":"Error unmarshalling JSON: `+err.Error()+`"}`, http.StatusInternalServerError)
+		commits, errMessage = getCommitsByPageNumber(fullUrl, page_number, req, client)
+		if errMessage != "" {
+			http.Error(w, errMessage, http.StatusInternalServerError)
 			return
 		}
 
 		if len(commits) == 0 {
-			break
+			break // Break the loop if no more commits are returned
 		}
 
-		resp = append(resp, commits...)
+		resp = append(resp, commits...) // Append returned commits to response slice
 	}
 
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		http.Error(w, `{"error":"Error encoding response to JSON: `+err.Error()+`"}`, http.StatusInternalServerError)
+		http.Error(w, "Error encoding response to JSON: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
