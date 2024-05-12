@@ -230,35 +230,42 @@ func TestGetCommitsAfter(t *testing.T) {
 }
 
 func Test_commitHandler_GetCommitByAuthor(t *testing.T) {
-	// Retrieve GitHub personal access token from environment variable
-	token := os.Getenv("SARTHAK_GITHUB_PERSONAL_ACCESS_TOKEN")
+	// Set up the router and handler
+	router := mux.NewRouter()
+	ch := &commitHandler{}
+	router.HandleFunc("/{owner}/{repo}/commit/getCommitByAuthor", ch.GetCommitByAuthor).Methods("GET")
 
-	// Mock request data
-	req, _ := http.NewRequest(http.MethodGet, "/", nil)
-	req = mux.SetURLVars(req, map[string]string{"owner": "exampleOwner", "repo": "exampleRepo"})
-	req.URL.RawQuery = fmt.Sprintf("author=JohnDoe&personalAccessToken=%s", token)
+	// Create a test server using the router
+	ts := httptest.NewServer(router)
+	defer ts.Close()
 
-	// Create a ResponseRecorder to capture the response
-	rr := httptest.NewRecorder()
-
-	// Create a mock commit handler
-	h := &commitHandler{}
-
-	// Call the handler function with the mock request and response
-	h.GetCommitByAuthor(rr, req)
-
-	// Check the status code of the response
-	if rr.Code != http.StatusOK {
-		t.Errorf("Expected status code %d but got %d", http.StatusOK, rr.Code)
+	// Form the URL with the test server URL and correct path variables
+	url := fmt.Sprintf("%s/exampleOwner/exampleRepo/commit/getCommitByAuthor?author=JohnDoe&personalAccessToken=%s", ts.URL, "testToken")
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	// Decode the response body into a slice of CommitData
+	// Perform the request using the test server
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer res.Body.Close()
+
+	// Check the status code
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code %d but got %d", http.StatusOK, res.StatusCode)
+	}
+
+	// Attempt to decode the response body
 	var resp []model.CommitData
-	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+	err = json.NewDecoder(res.Body).Decode(&resp)
+	if err != nil {
 		t.Errorf("Error decoding response body: %v", err)
 	}
 
-	// Check if the response contains any commits (assuming some commits should be returned)
+	// Validate the response content
 	if len(resp) == 0 {
 		t.Errorf("Expected at least one commit to be returned, but got none")
 	}
