@@ -125,7 +125,7 @@ func Test_commitHandler_GetCommitByAuthor(t *testing.T) {
 	// Mock request data
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	req = mux.SetURLVars(req, map[string]string{"owner": "nyuoss", "repo": "git-service"})
-	req.URL.RawQuery = "author=exampleUser" // Removed token from query
+	req.URL.RawQuery = "author=sarthakgoel1997" // Removed token from query
 
 	// Create a ResponseRecorder to capture the response
 	rr := httptest.NewRecorder()
@@ -149,7 +149,7 @@ func Test_commitHandler_GetCommitByAuthor(t *testing.T) {
 
 	// Check if the response contains commits by the expected author
 	// This part assumes that the GitHub username "exampleUser" should match the author of some commits
-	expectedAuthor := "CVM0410"
+	expectedAuthor := "sarthakgoel1997"
 	found := false
 	for _, c := range resp {
 		if c.Author.Login == expectedAuthor {
