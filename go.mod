@@ -7,6 +7,9 @@ require (
 	github.com/rs/cors v1.10.1
 )
 
-require golang.org/x/net v0.24.0 // indirect
+require (
+	github.com/jarcoal/httpmock v1.3.1 // indirect
+	golang.org/x/net v0.24.0 // indirect
+)
 
 require github.com/go-resty/resty/v2 v2.12.0
