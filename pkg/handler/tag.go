@@ -75,9 +75,6 @@ func (h *tagHandler) GetChildTagsByCommit(w http.ResponseWriter, r *http.Request
 		var commits []Commit
 		apiURL = fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?sha=%s", owner, repo, sha)
 		resp, err = client.R().SetResult(&commits).Get(apiURL)
-		for _, c := range commits {
-			fmt.Println(c.SHA)
-		}
 		if err != nil {
 			http.Error(w, "Failed to fetch branches from the GitHub API", http.StatusInternalServerError)
 			return
@@ -163,15 +160,12 @@ func (h *tagHandler) GetParentTagsByCommit(w http.ResponseWriter, r *http.Reques
 	}
 
 	// for each branch, get parent tags for the commit
-	parentTagsByBranch := make(map[string][]string)
+	parentTagsByBranch := make(map[string]string)
 	for _, b := range repoBranches {
 		sha := b.Commit.SHA
 		var commits []Commit
 		apiURL = fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?sha=%s", owner, repo, sha)
 		resp, err = client.R().SetResult(&commits).Get(apiURL)
-		for _, c := range commits {
-			fmt.Println(c.SHA)
-		}
 		if err != nil {
 			http.Error(w, "Failed to fetch branches from the GitHub API", http.StatusInternalServerError)
 			return
@@ -182,22 +176,21 @@ func (h *tagHandler) GetParentTagsByCommit(w http.ResponseWriter, r *http.Reques
 		}
 
 		commitFound := false
-		parentTags := make([]string, 0)
 		for _, c := range commits {
-			if commitTagMap[c.SHA] != "" {
-				parentTags = append(parentTags, commitTagMap[c.SHA])
-			}
 			if strings.HasPrefix(c.SHA, commitSha) {
 				commitFound = true
-				break
+			}
+			if commitTagMap[c.SHA] != "" && commitFound {
+				parentTagsByBranch[b.Name] = commitTagMap[c.SHA]
 			}
 		}
-
-		if !commitFound {
-			parentTags = []string{}
-		}
-
-		parentTagsByBranch[b.Name] = parentTags
 	}
 
+	response := GetParentTagsByCommitResp{
+		Tags: parentTagsByBranch,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(response)
 }
