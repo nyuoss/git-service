@@ -149,7 +149,7 @@ func Test_commitHandler_GetCommitByAuthor(t *testing.T) {
 
 	// Check if the response contains commits by the expected author
 	// This part assumes that the GitHub username "exampleUser" should match the author of some commits
-	expectedAuthor := "sarthakgoel1997"
+	expectedAuthor := "CVM0410"
 	found := false
 	for _, c := range resp {
 		if c.Author.Login == expectedAuthor {
