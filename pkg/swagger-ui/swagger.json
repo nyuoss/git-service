@@ -348,27 +348,23 @@
             "required": true,
             "type": "string",
             "description": "Author username to filter commits by"
-          },
-          {
-            "name": "personalAccessToken",
-            "in": "query",
-            "type": "string",
-            "description": "Personal Access Token for authorization if needed",
-            "required": false
           }
         ],
         "responses": {
           "200": {
-            "$ref": "#/responses/GetCommitByAuthorResponse"
+            "description": "Successful retrieval of commits",
+            "schema": {
+              "$ref": "#/definitions/GetCommitByAuthorResponse"
+            }
           },
           "400": {
             "description": "Bad request. Possible issues could be missing required parameters."
           },
           "401": {
-            "description": "Unauthorized. Provided Personal Access Token is invalid or expired."
+            "description": "Unauthorized. Provided credentials are invalid or expired."
           },
           "404": {
-            "description": "Not found. The specified owner, repository, or author could not be found."
+            "description": "Not found. The specified owner or repository could not be found."
           },
           "500": {
             "description": "Internal server error. A problem occurred in our service."

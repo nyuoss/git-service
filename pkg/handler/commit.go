@@ -217,12 +217,8 @@ func (h *commitHandler) GetCommitByAuthor(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// Add authorization header if a personal access token is provided
-	if request.PersonalAccessToken != "" {
-		req.Header.Add("Authorization", "token "+request.PersonalAccessToken)
-	}
-
-	resp := []model.CommitData{}
+	client := &http.Client{}
+	var resp []model.CommitData
 
 	// Iterate over pages of results
 	for page_number := 1; ; page_number++ {
@@ -234,7 +230,6 @@ func (h *commitHandler) GetCommitByAuthor(w http.ResponseWriter, r *http.Request
 		}
 		req.URL = u
 
-		client := &http.Client{}
 		res, err := client.Do(req)
 		if err != nil {
 			http.Error(w, "Error making request to GitHub: "+err.Error(), http.StatusInternalServerError)
@@ -249,8 +244,7 @@ func (h *commitHandler) GetCommitByAuthor(w http.ResponseWriter, r *http.Request
 		}
 
 		var commits []model.CommitData
-		err = json.Unmarshal(body, &commits)
-		if err != nil {
+		if err := json.Unmarshal(body, &commits); err != nil {
 			http.Error(w, "Error unmarshalling JSON: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -263,5 +257,7 @@ func (h *commitHandler) GetCommitByAuthor(w http.ResponseWriter, r *http.Request
 	}
 
 	// Send the final list of commits as JSON
-	_ = json.NewEncoder(w).Encode(resp)
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		http.Error(w, "Error encoding JSON response: "+err.Error(), http.StatusInternalServerError)
+	}
 }

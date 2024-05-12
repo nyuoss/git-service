@@ -125,10 +125,7 @@ func Test_commitHandler_GetCommitByAuthor(t *testing.T) {
 	// Mock request data
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	req = mux.SetURLVars(req, map[string]string{"owner": "nyuoss", "repo": "git-service"})
-
-	// Assuming the token is required and you want to include it
-	token := "your_access_token_here" // Set a valid token for testing
-	req.URL.RawQuery = "author=exampleUser&token=" + token
+	req.URL.RawQuery = "author=exampleUser" // Removed token from query
 
 	// Create a ResponseRecorder to capture the response
 	rr := httptest.NewRecorder()
