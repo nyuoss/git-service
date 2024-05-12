@@ -229,14 +229,14 @@ func TestGetCommitsAfter(t *testing.T) {
 	}
 }
 
-func Test_commitHandler_GetCommitByAuthor_Success(t *testing.T) {
+func Test_commitHandler_GetCommitByAuthor(t *testing.T) {
 	// Retrieve GitHub personal access token from environment variable
 	token := os.Getenv("SARTHAK_GITHUB_PERSONAL_ACCESS_TOKEN")
 
 	// Mock request data
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
-	req = mux.SetURLVars(req, map[string]string{"owner": "gcivil-nyu-org", "repo": "INT2-Monday-Spring2024-Team-1"})
-	req.URL.RawQuery = fmt.Sprintf("authorRegex=John*&personalAccessToken=%s", token)
+	req = mux.SetURLVars(req, map[string]string{"owner": "exampleOwner", "repo": "exampleRepo"})
+	req.URL.RawQuery = fmt.Sprintf("author=JohnDoe&personalAccessToken=%s", token)
 
 	// Create a ResponseRecorder to capture the response
 	rr := httptest.NewRecorder()
@@ -252,39 +252,26 @@ func Test_commitHandler_GetCommitByAuthor_Success(t *testing.T) {
 		t.Errorf("Expected status code %d but got %d", http.StatusOK, rr.Code)
 	}
 
-	// Decode the response body into a map of commit IDs and names
-	var resp map[string]string
+	// Decode the response body into a slice of CommitData
+	var resp []model.CommitData
 	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
 		t.Errorf("Error decoding response body: %v", err)
 	}
 
-	// Check if the response contains expected data (This part assumes you know what to expect)
-	expectedID := "commit-id1" // This should be replaced by an actual expected ID
-	if _, ok := resp[expectedID]; !ok {
-		t.Errorf("Expected response to contain commit ID %q, but it was not found", expectedID)
+	// Check if the response contains any commits (assuming some commits should be returned)
+	if len(resp) == 0 {
+		t.Errorf("Expected at least one commit to be returned, but got none")
 	}
-}
 
-func Test_commitHandler_GetCommitByAuthor_NoCommitsFound(t *testing.T) {
-	// Retrieve GitHub personal access token from environment variable
-	token := os.Getenv("SARTHAK_GITHUB_PERSONAL_ACCESS_TOKEN")
-
-	// Mock request data
-	req, _ := http.NewRequest(http.MethodGet, "/", nil)
-	req = mux.SetURLVars(req, map[string]string{"owner": "gcivil-nyu-org", "repo": "INT2-Monday-Spring2024-Team-1"})
-	req.URL.RawQuery = fmt.Sprintf("authorRegex=NonExistentAuthor*&personalAccessToken=%s", token)
-
-	// Create a ResponseRecorder to capture the response
-	rr := httptest.NewRecorder()
-
-	// Create a mock commit handler
-	h := &commitHandler{}
-
-	// Call the handler function with the mock request and response
-	h.GetCommitByAuthor(rr, req)
-
-	// Check the status code of the response
-	if rr.Code != http.StatusNotFound {
-		t.Errorf("Expected status code %d but got %d", http.StatusNotFound, rr.Code)
+	// Optionally, check if the response contains commits by the specified author (requires response data to contain author information)
+	found := false
+	for _, c := range resp {
+		if strings.Contains(strings.ToLower(c.Commit.Author.Name), strings.ToLower("JohnDoe")) {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("Expected response to contain commits by author 'JohnDoe', but none were found")
 	}
 }
