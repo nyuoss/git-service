@@ -23,6 +23,7 @@ type CommitHandler interface {
 	GetCommitByName(http.ResponseWriter, *http.Request)
 	CommitReleased(http.ResponseWriter, *http.Request)
 	GetJobsByCommit(http.ResponseWriter, *http.Request)
+	GetCommitByAuthor(http.ResponseWriter, *http.Request)
 }
 
 var _ CommitHandler = &commitHandler{}
@@ -440,4 +441,75 @@ func GetCommitStatuses(owner, repo, commitSHA string) ([]Status, error) {
 	}
 
 	return statusResp.Statuses, nil
+}
+
+func (h *commitHandler) GetCommitByAuthor(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	// Get request data from query params
+	request, errMessage := GetCommitByAuthorRequest(r)
+	if errMessage != "" {
+		http.Error(w, errMessage, http.StatusBadRequest)
+		return
+	}
+
+	// Construct the GitHub API URL for fetching commits by author
+	baseUrl := fmt.Sprintf("https://api.github.com/repos/%s/%s/commits?author=%s&per_page=100&page=", request.Owner, request.Repository, urlpkg.QueryEscape(request.Author))
+	method := "GET"
+
+	req, err := http.NewRequest(method, baseUrl, nil)
+	if err != nil {
+		http.Error(w, "Error generating new request: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Add authorization header if a personal access token is provided
+	if request.PersonalAccessToken != "" {
+		req.Header.Add("Authorization", "token "+request.PersonalAccessToken)
+	}
+
+	resp := []model.CommitData{}
+
+	// Iterate over pages of results
+	for page_number := 1; ; page_number++ {
+		url := baseUrl + strconv.Itoa(page_number)
+		u, err := urlpkg.Parse(url)
+		if err != nil {
+			http.Error(w, "Error generating new URL: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		req.URL = u
+
+		client := &http.Client{}
+		res, err := client.Do(req)
+		if err != nil {
+			http.Error(w, "Error making request to GitHub: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer res.Body.Close()
+
+		body, err := io.ReadAll(res.Body)
+		if err != nil {
+			http.Error(w, "Error reading response: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		var commits []model.CommitData
+		err = json.Unmarshal(body, &commits)
+		if err != nil {
+			http.Error(w, "Error unmarshalling JSON: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if len(commits) == 0 {
+			break // Exit the loop if no more commits are found
+		}
+
+		resp = append(resp, commits...) // Append found commits to response
+	}
+
+	// Send the final list of commits as JSON
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		http.Error(w, "Error encoding JSON response: "+err.Error(), http.StatusInternalServerError)
+	}
 }
