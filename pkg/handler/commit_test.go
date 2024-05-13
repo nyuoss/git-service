@@ -228,3 +228,54 @@ func TestGetCommitsAfter(t *testing.T) {
 		t.Errorf("Expected the response to contain commit %s, but it was not found", expectedCommit)
 	}
 }
+
+func Test_commitHandler_GetCommitByAuthor(t *testing.T) {
+	// Mock request data
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req = mux.SetURLVars(req, map[string]string{"owner": "nyuoss", "repo": "git-service"})
+
+	// Optional token
+	token := "your_access_token_here" // Set a valid token for testing if needed
+	includeToken := false             // Change this to false if you don't want to include the token
+
+	// Build query parameters
+	q := req.URL.Query()
+	q.Add("author", "sarthakgoel1997")
+	if includeToken {
+		q.Add("token", token)
+	}
+	req.URL.RawQuery = q.Encode()
+
+	// Create a ResponseRecorder to capture the response
+	rr := httptest.NewRecorder()
+
+	// Create a mock commit handler
+	h := &commitHandler{}
+
+	// Call the handler function with the mock request and response
+	h.GetCommitByAuthor(rr, req)
+
+	// Check the status code of the response
+	if rr.Code != http.StatusOK {
+		t.Errorf("Expected status code %d but got %d", http.StatusOK, rr.Code)
+	}
+
+	// Decode the response body into a slice of CommitData
+	var resp []model.CommitData
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Errorf("Error decoding response body: %v", err)
+	}
+
+	// Check if the response contains commits by the expected author
+	expectedAuthor := "sarthakgoel1997"
+	found := false
+	for _, c := range resp {
+		if c.Author.Login == expectedAuthor {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("Expected at least one commit from author %q, but none were found", expectedAuthor)
+	}
+}

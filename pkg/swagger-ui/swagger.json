@@ -391,7 +391,64 @@
           }
         }
       }
-    }
+    },
+    "/{owner}/{repo}/commit/getCommitByAuthor": {
+      "get": {
+        "tags": ["commit"],
+        "summary": "Provides commits by the specified author in the repository.",
+        "operationId": "getCommitByAuthor",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Owner of the repository"
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Repository name"
+          },
+          {
+            "name": "author",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Author username to filter commits by"
+          },
+          {
+            "name": "personalAccessToken",
+            "in": "query",
+            "type": "string",
+            "description": "Personal Access Token for authorization if needed",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of commits",
+            "schema": {
+              "$ref": "#/definitions/GetCommitByAuthorResponse"
+            }
+          },
+          "400": {
+            "description": "Bad request. Possible issues could be missing required parameters."
+          },
+          "401": {
+            "description": "Unauthorized. Provided credentials are invalid or expired."
+          },
+          "404": {
+            "description": "Not found. The specified owner or repository could not be found."
+          },
+          "500": {
+            "description": "Internal server error. A problem occurred in our service."
+          }
+        }
+      }
+    }    
   },
   "definitions": {
     "GetActiveBranchesResp": {
@@ -525,6 +582,20 @@
         }
       },
       "x-go-package": "git-service/pkg/handler"
+    },
+    "GetCommitByAuthorResp": {
+      "type": "object",
+      "properties": {
+        "commits": {
+          "description": "Map of commit IDs to their corresponding commit messages, filtered by the specified author.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "description": "Commit message associated with the commit id"
+          }
+        }
+      },
+      "x-go-package": "git-service/pkg/handler"
     }
   },
   "responses": {
@@ -555,7 +626,7 @@
     "GetCommitsBeforeResponse": {
       "description": "",
       "schema": {
-        "$ref": "#/definitions/GetCommitByNameResp"
+        "$ref": "#/definitions/GetCommitsBeforeResp"
       }
     },
     "GetJobsByCommitResponse": {
@@ -568,6 +639,12 @@
       "description": "",
       "schema": {
         "$ref": "#/definitions/GetParentTagsByCommitResp"
+      }
+    },
+    "GetCommitByAuthorResponse": {
+      "description": "Successful retrieval of commits authored by the specified user.",
+      "schema": {
+        "$ref": "#/definitions/GetCommitByAuthorResp"
       }
     }
   }
