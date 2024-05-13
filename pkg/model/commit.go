@@ -80,3 +80,10 @@ type CommitReleasedRequest struct {
 type CommitReleasedResponse struct {
 	CommitReleased bool
 }
+
+type GetCommitByAuthorRequest struct {
+	Owner               string
+	Repository          string
+	Author              string
+	PersonalAccessToken string // Optional field for GitHub API authentication
+}
