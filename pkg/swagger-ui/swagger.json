@@ -132,9 +132,10 @@
           {
             "type": "string",
             "x-go-name": "Personal Access Token",
-            "description": "For authorization in case you get wrong branch does not exist or 4xx/5xx errors",
+            "description": "For authorization",
             "name": "personalAccessToken",
-            "in": "query"
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
@@ -266,9 +267,10 @@
           {
             "type": "string",
             "x-go-name": "Personal Access Token",
-            "description": "For authorization in case you get wrong branch does not exist or 4xx/5xx errors",
+            "description": "For authorization",
             "name": "personalAccessToken",
-            "in": "query"
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
