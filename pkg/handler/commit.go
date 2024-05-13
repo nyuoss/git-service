@@ -468,36 +468,15 @@ func (h *commitHandler) GetCommitByAuthor(w http.ResponseWriter, r *http.Request
 		req.Header.Add("Authorization", "token "+request.PersonalAccessToken)
 	}
 
-	resp := []model.CommitData{}
+	var resp []model.CommitData
 
-	// Iterate over pages of results
-	for page_number := 1; ; page_number++ {
-		url := baseUrl + strconv.Itoa(page_number)
-		u, err := urlpkg.Parse(url)
-		if err != nil {
-			http.Error(w, "Error generating new URL: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-		req.URL = u
+	page_number := 1
 
-		client := &http.Client{}
-		res, err := client.Do(req)
-		if err != nil {
-			http.Error(w, "Error making request to GitHub: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-		defer res.Body.Close()
-
-		body, err := io.ReadAll(res.Body)
-		if err != nil {
-			http.Error(w, "Error reading response: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		var commits []model.CommitData
-		err = json.Unmarshal(body, &commits)
-		if err != nil {
-			http.Error(w, "Error unmarshalling JSON: "+err.Error(), http.StatusInternalServerError)
+	// Using existing utility function to fetch commits by page
+	for {
+		commits, tempErrMessage := getCommitsByPageNumber(baseUrl, page_number, req, &http.Client{})
+		if tempErrMessage != "" {
+			http.Error(w, tempErrMessage, http.StatusInternalServerError)
 			return
 		}
 
@@ -506,6 +485,7 @@ func (h *commitHandler) GetCommitByAuthor(w http.ResponseWriter, r *http.Request
 		}
 
 		resp = append(resp, commits...) // Append found commits to response
+		page_number++
 	}
 
 	// Send the final list of commits as JSON
