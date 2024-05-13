@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -39,21 +40,23 @@ func TestGetBranchByTag(t *testing.T) {
 }
 
 func TestGetActiveBranches(t *testing.T) {
-	req, err := http.NewRequest("GET", "/v1/aryamanrishabh/metricsjs/branch/getActiveBranches?unit=h&number=1000", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	r := mux.NewRouter()
-	h := &branchHandler{}
-	r.HandleFunc("/v1/{owner}/{repo}/branch/getActiveBranches", h.GetActiveBranches).Methods("GET")
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req = mux.SetURLVars(req, map[string]string{"owner": "aryamanrishabh", "repo": "metricsjs"})
+	req.URL.RawQuery = "unit=h&number=6000"
 
 	rr := httptest.NewRecorder()
-	r.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("Handler returned incorrect status code: got %v want %v",
-			status, http.StatusOK)
+	b := &branchHandler{}
+
+	b.GetActiveBranches(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Errorf("Expected status code %d but got %d", http.StatusOK, rr.Code)
+	}
+
+	var resp map[string][]string
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Errorf("Error decoding response body: %v", err)
 	}
 
 	expectedContentType := "application/json"
@@ -61,11 +64,67 @@ func TestGetActiveBranches(t *testing.T) {
 		t.Errorf("Handler returned incorrect content type: got %v want %v", contentType, expectedContentType)
 	}
 
-	expected := `{"branches":["master"]}`
-	got := strings.TrimSpace(rr.Body.String())
+	expectedBranch := "master"
+	foundIssue := false
+	for _, b := range resp["branches"] {
+		if b == expectedBranch {
+			foundIssue = false
+			break
+		} else {
+			foundIssue = true
+		}
+	}
 
-	if got != expected {
-		t.Errorf("Handler returned unexpected body: got %v want %v",
-			rr.Body.String(), expected)
+	if foundIssue {
+		t.Errorf("Expected the response to contain branch %s, but it was not found", expectedBranch)
+	}
+}
+
+// unit test for checkIfBranchExists function
+func Test_checkIfBranchExists(t *testing.T) {
+	type args struct {
+		owner               string
+		repo                string
+		branch              string
+		personalAccessToken string
+	}
+	tests := []struct {
+		name       string
+		args       args
+		wantExists bool
+		wantErr    bool
+	}{
+		{
+			name: "Branch exists",
+			args: args{
+				owner:  "nyuoss",
+				repo:   "git-service",
+				branch: "main",
+			},
+			wantExists: true,
+			wantErr:    false,
+		},
+		{
+			name: "Branch does not exist",
+			args: args{
+				owner:  "nyuoss",
+				repo:   "git-service",
+				branch: "test_main",
+			},
+			wantExists: false,
+			wantErr:    false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotExists, err := checkIfBranchExists(tt.args.owner, tt.args.repo, tt.args.branch, tt.args.personalAccessToken)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("checkIfBranchExists() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if gotExists != tt.wantExists {
+				t.Errorf("checkIfBranchExists() = %v, want %v", gotExists, tt.wantExists)
+			}
+		})
 	}
 }

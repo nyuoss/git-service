@@ -64,7 +64,7 @@ func (s *gitServer) HandleBranches() {
 
 func (s *gitServer) HandleCommits() {
 	s.r.HandleFunc(
-		CommitPrefix+"/getCommitByMessage", s.ch.GetCommitByMessage).
+		CommitPrefix+"/getCommitByName", s.ch.GetCommitByName).
 		Methods(http.MethodGet)
 
 	s.r.HandleFunc(
@@ -77,6 +77,10 @@ func (s *gitServer) HandleCommits() {
 
 	s.r.HandleFunc(
 		CommitPrefix+"/commitReleased", s.ch.CommitReleased).
+		Methods(http.MethodGet)
+
+	s.r.HandleFunc(
+		CommitPrefix+"/getJobsByCommit", s.ch.GetJobsByCommit).
 		Methods(http.MethodGet)
 
 	s.r.HandleFunc(

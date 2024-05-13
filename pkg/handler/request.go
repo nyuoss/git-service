@@ -1,6 +1,6 @@
 package handler
 
-// swagger:parameters getActiveBranches getBranchByTag getChildTagsByCommit getParentTagsByCommit getCommitsBefore getCommitsAfter getCommitByMessage getJobsByCommit
+// swagger:parameters getActiveBranches getBranchByTag getChildTagsByCommit getParentTagsByCommit getCommitsBefore getCommitsAfter getCommitByName getJobsByCommit
 type RepoInfo struct {
 	// Owner of the repository
 	//

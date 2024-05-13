@@ -197,8 +197,13 @@ func getBranches(owner, repo, commitSHA string) ([]string, error) {
 	return branchNames, nil
 }
 
-func checkIfBranchExists(owner, repo, branch string) (exists bool, err error) {
+func checkIfBranchExists(owner, repo, branch, personalAccessToken string) (exists bool, err error) {
 	client := resty.New()
+
+	if len(personalAccessToken) > 0 {
+		AddAuthRequestHeaders(client, personalAccessToken)
+	}
+
 	resp, err := client.R().
 		Get(fmt.Sprintf("https://api.github.com/repos/%s/%s/branches/%s", owner, repo, branch))
 	if err != nil {
@@ -207,4 +212,10 @@ func checkIfBranchExists(owner, repo, branch string) (exists bool, err error) {
 
 	exists = resp.StatusCode() == http.StatusOK
 	return
+}
+
+func AddAuthRequestHeaders(client *resty.Client, personalAccessToken string) {
+	client.SetHeader("Accept", "application/vnd.github+json")
+	client.SetHeader("Authorization", "Bearer "+personalAccessToken)
+	client.SetHeader("X-GitHub-Api-Version", "2022-11-28")
 }

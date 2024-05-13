@@ -61,17 +61,20 @@ type Author struct {
 	SiteAdmin         bool   `json:"site_admin"`
 }
 
-type GetCommitByMessageRequest struct {
-	Owner         string
-	Repository    string
-	CommitMessage string
+type GetCommitByNameRequest struct {
+	Owner               string
+	Repository          string
+	CommitMessage       string
+	Branch              string
+	PersonalAccessToken string
 }
 
 type CommitReleasedRequest struct {
-	Owner         string
-	Repository    string
-	CommitId      string
-	ReleaseBranch string
+	Owner               string
+	Repository          string
+	CommitId            string
+	ReleaseBranch       string
+	PersonalAccessToken string
 }
 
 type CommitReleasedResponse struct {
@@ -79,7 +82,8 @@ type CommitReleasedResponse struct {
 }
 
 type GetCommitByAuthorRequest struct {
-	Owner      string
-	Repository string
-	Author     string
+	Owner               string
+	Repository          string
+	Author              string
+	PersonalAccessToken string // Optional field for GitHub API authentication
 }

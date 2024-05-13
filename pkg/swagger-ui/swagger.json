@@ -91,6 +91,59 @@
         }
       }
     },
+    "/{owner}/{repo}/commit/getCommitByName": {
+      "get": {
+        "tags": ["commit"],
+        "summary": "Accepts a message about commit. Provides commit id and name.",
+        "operationId": "getCommitByName",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Message",
+            "description": "Message",
+            "name": "message",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Owner",
+            "description": "Owner of the repository",
+            "name": "owner",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Repo",
+            "description": "Repository name",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Branch",
+            "description": "Branch name",
+            "name": "branch",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Personal Access Token",
+            "description": "For authorization in case you get wrong branch does not exist or 4xx/5xx errors",
+            "name": "personalAccessToken",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetCommitByNameResponse"
+          }
+        }
+      }
+    },
     "/{owner}/{repo}/commit/getCommitsAfter": {
       "get": {
         "tags": ["commit"],
@@ -102,6 +155,13 @@
             "x-go-name": "Commit",
             "description": "commit id",
             "name": "commit",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "Number",
+            "description": "number of commits",
+            "name": "number",
             "in": "query"
           },
           {
@@ -202,6 +262,13 @@
             "name": "repo",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Personal Access Token",
+            "description": "For authorization in case you get wrong branch does not exist or 4xx/5xx errors",
+            "name": "personalAccessToken",
+            "in": "query"
           }
         ],
         "responses": {
@@ -211,7 +278,7 @@
         }
       }
     },
-    "/{owner}/{repo}/job/getJobsByCommit": {
+    "/{owner}/{repo}/commit/getJobsByCommit": {
       "get": {
         "tags": ["job"],
         "summary": "Accepts a commit id. Provides the CI/CD jobs associated with the given commit.",
@@ -219,10 +286,11 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "Commit",
-            "description": "commit id",
-            "name": "commit",
-            "in": "query"
+            "x-go-name": "commitSHA",
+            "description": "commitSHA",
+            "name": "commitSHA",
+            "in": "query",
+            "required": true
           },
           {
             "type": "string",
@@ -348,6 +416,13 @@
             "required": true,
             "type": "string",
             "description": "Author username to filter commits by"
+          },
+          {
+            "name": "personalAccessToken",
+            "in": "query",
+            "type": "string",
+            "description": "Personal Access Token for authorization if needed",
+            "required": false
           }
         ],
         "responses": {
@@ -416,6 +491,10 @@
       },
       "x-go-package": "git-service/pkg/handler"
     },
+    "GetCommitByNameResp": {
+      "type": "object",
+      "x-go-package": "git-service/pkg/handler"
+    },
     "GetCommitsAfterResp": {
       "type": "object",
       "properties": {
@@ -451,15 +530,40 @@
       "x-go-package": "git-service/pkg/handler"
     },
     "GetJobsByCommitResp": {
-      "type": "object",
-      "properties": {
-        "jobs": {
-          "description": "[jobUrl1, jobUrl2, jobUrl3...]",
-          "type": "array",
-          "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
             "type": "string"
           },
-          "x-go-name": "Jobs"
+          "avatar_url": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "node_id": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "target_url": {
+            "type": "string"
+          },
+          "context": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          }
         }
       },
       "x-go-package": "git-service/pkg/handler"
@@ -490,7 +594,7 @@
         }
       },
       "x-go-package": "git-service/pkg/handler"
-    }    
+    }
   },
   "responses": {
     "GetActiveBranchesResponse": {
@@ -540,6 +644,6 @@
       "schema": {
         "$ref": "#/definitions/GetCommitByAuthorResp"
       }
-    }     
+    }
   }
 }
