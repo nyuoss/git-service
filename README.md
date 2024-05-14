@@ -114,3 +114,20 @@ Use http://localhost:8000/swaggerui/ in your browser to test the APIs
 ### Contribution Templates
 - [Pull Request Template](./pull_request_template.md)
 - [Issue Template](./issue_template.md)
+
+## Video Resources
+Demo Video: https://www.youtube.com/watch?v=8U0Q7gK9bSw
+
+Presentation: https://docs.google.com/presentation/d/1H0B5dvRpDhqiG5_4SQiH_MKXO-U6kvyW/edit?usp=sharing&ouid=118066093191042379637&rtpof=true&sd=true
+
+Presentation Video: https://youtu.be/oy0XSqaiCjk
+
+
+### Additional Demo Videos
+Part 1: https://drive.google.com/file/d/1iTuZFx7GFKrc0Y2Onb6TKgPmDng-Ot5O/view?usp=sharing
+
+Part 2: https://drive.google.com/file/d/14JybIKFUYTKba3ziE8ToSLc4zUgYjqZZ/view?usp=sharing
+
+Part 3: https://drive.google.com/file/d/1kLatH64ZEvh-7J4CCB4uuzKNNsBO0fDY/view?usp=sharing
+
+Part 4: https://youtu.be/aM4C4Mcs-0E
