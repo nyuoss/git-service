@@ -193,3 +193,22 @@ func GetCommitReleasedRequest(r *http.Request) (req model.CommitReleasedRequest,
 	}
 	return
 }
+
+func GetCommitByAuthorRequest(r *http.Request) (req model.GetCommitByAuthorRequest, errMessage string) {
+	vars := mux.Vars(r)
+	author := r.URL.Query().Get("author")
+	token := r.URL.Query().Get("token") // Personal Access Token is optional
+
+	if author == "" {
+		errMessage = "Author parameter is required"
+		return
+	}
+
+	req = model.GetCommitByAuthorRequest{
+		Owner:               vars["owner"],
+		Repository:          vars["repo"],
+		Author:              author,
+		PersonalAccessToken: token, // This can be an empty string if not provided
+	}
+	return
+}
