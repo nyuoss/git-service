@@ -3,7 +3,7 @@
   "swagger": "2.0",
   "info": {
     "description": "Documentation of our awesome API.",
-    "title": "GitsService.",
+    "title": "Git-Service: Enhanced Git Navigation Tool",
     "version": "1.0.0"
   },
   "host": "localhost:8000",

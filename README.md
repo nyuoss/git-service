@@ -115,6 +115,9 @@ Use http://localhost:8000/swaggerui/ in your browser to test the APIs
 - [Pull Request Template](./pull_request_template.md)
 - [Issue Template](./issue_template.md)
 
+## Design Document
+https://docs.google.com/document/d/11t64NrmHKW-JwUUJK40whs7IXLFPDU1AUfR30w8SSd4/edit?usp=sharing
+
 ## Video Resources
 Demo Video: https://www.youtube.com/watch?v=8U0Q7gK9bSw
 
